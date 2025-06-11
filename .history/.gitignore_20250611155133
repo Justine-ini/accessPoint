@@ -1,0 +1,35 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore virtual environments
+venv/
+.env
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+.DS_Store
+
+# Ignore system-specific files
+Thumbs.db
+
+# Ignore compiled files and IDE settings
+*.swp
+.idea/
+.vscode/
+
+# Ignore database files
+*.sqlite3
+
+# Ignore environment settings
+config.json
+.env*
+
+# Ignore dependencies
+node_modules/
+dist/
+build/
+
+# Ignore Git itself
+.gitignore
