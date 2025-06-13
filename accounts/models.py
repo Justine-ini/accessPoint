@@ -77,7 +77,7 @@ class User(AbstractBaseUser):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True, related_name='userprofile')
     profile_picture = models.ImageField(upload_to='users/profile_pictures', blank=True, null=True)
     cover_photo = models.ImageField(upload_to='users/cover_photos', blank=True, null=True)
     address_line_1 = models.CharField(max_length=50, blank=True, null=True)
@@ -93,3 +93,4 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.email
+
