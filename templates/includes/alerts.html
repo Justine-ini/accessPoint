@@ -1,0 +1,42 @@
+<!-- Alert message with icons -->
+ 
+{% if messages %}
+  <div id="message-overlay" style="
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1050;
+      text-align: center;
+    ">
+    {% for message in messages %}
+      {% if message.tags == "success" %}
+        {% with "bi-check-circle-fill" as icon %}
+          <div class="alert alert-success alert-dismissible fade show d-inline-block shadow" role="alert" style="min-width: 300px;">
+            <i class="bi {{ icon }} me-2"></i> {{ message }}
+          </div>
+        {% endwith %}
+      {% elif message.tags == "error" %}
+        {% with "bi-exclamation-triangle-fill" as icon %}
+          <div class="alert alert-danger alert-dismissible fade show d-inline-block shadow" role="alert" style="min-width: 300px;">
+            <i class="bi {{ icon }} me-2"></i> {{ message }}
+          </div>
+        {% endwith %}
+      {% elif message.tags == "warning" %}
+        {% with "bi-exclamation-circle-fill" as icon %}
+          <div class="alert alert-warning alert-dismissible fade show d-inline-block shadow" role="alert" style="min-width: 300px;">
+            <i class="bi {{ icon }} me-2"></i> {{ message }}
+          </div>
+        {% endwith %}
+      {% else %}
+        {% with "bi-info-circle-fill" as icon %}
+          <div class="alert alert-info alert-dismissible fade show d-inline-block shadow" role="alert" style="min-width: 300px;">
+            <i class="bi {{ icon }} me-2"></i> {{ message }}
+          </div>
+        {% endwith %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+{% endif %}
+
