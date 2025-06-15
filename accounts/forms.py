@@ -1,5 +1,4 @@
 """Forms for the accounts app."""
-from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django import forms
 from .models import User
@@ -9,7 +8,8 @@ class UserForm(forms.ModelForm):
     """Form for creating and updating User instances."""
 
     password = forms.CharField(widget=forms.PasswordInput(), required=True)
-    confirm_password = forms.CharField(widget=forms.PasswordInput(), required=True)
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(), required=True)
 
     class Meta:
         """Meta options for UserForm."""
@@ -27,18 +27,19 @@ class UserForm(forms.ModelForm):
 
         # Name validation
         if first_name and not first_name.isalpha():
-            raise forms.ValidationError("First name must only contain letters.")
+            raise forms.ValidationError(
+                "First name must only contain letters.")
         if last_name and not last_name.isalpha():
             raise forms.ValidationError("Last name must only contain letters.")
 
         # Password validation
         if password and confirm_password and password != confirm_password:
             raise forms.ValidationError("Passwords do not match.")
-        
+
         # Email validation
         try:
             validate_email(email)
         except forms.ValidationError:
             raise forms.ValidationError("Invalid email format.")
-        
+
         return cleaned_data
