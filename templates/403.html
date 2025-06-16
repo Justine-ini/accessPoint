@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="min-height: 70vh; display: flex; justify-content: center; align-items: center; text-align: center; padding: 2rem;">
+  <div>
+    <h1 style="font-size: 4rem; color: #d9534f;">403</h1>
+    <h2>Access Denied</h2>
+    <p>You do not have permission to access this page or perform this action.</p>
+    <p>If you believe this is a mistake, please contact the site administrator.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Return to Home</a>
+  </div>
+</div>
+{% endblock %}
