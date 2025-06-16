@@ -43,3 +43,31 @@ class UserForm(forms.ModelForm):
             raise forms.ValidationError("Invalid email format.")
 
         return cleaned_data
+
+
+class LoginForm(forms.Form):
+    """Form for user login."""
+    email = forms.EmailField(
+        max_length=255,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your email address'
+        }), required=True
+    )
+
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your password'
+        }), required=True
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email').strip().lower()
+        password = cleaned_data.get('password')
+
+        if not email or not password:
+            raise forms.ValidationError("Email and password are required.")
+
+        return cleaned_data
