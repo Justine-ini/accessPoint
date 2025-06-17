@@ -78,7 +78,6 @@ WSGI_APPLICATION = 'accessPoint_main.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -129,7 +128,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Use a separate directory for collected static files to prevent conflicts
-STATIC_ROOT = BASE_DIR / 'static'  # This is where `collectstatic` will gather files
+# This is where `collectstatic` will gather files
+STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [
     STATIC_DIR  # This is where static files are located during development
@@ -143,3 +143,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# SMTP server details
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = True
+
+# Authentication
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
