@@ -1,0 +1,8 @@
+{% autoescape off %}
+
+Hi {{ user.first_name }},
+Thank you for registering with us! To complete your account setup, please verify your email address by clicking the link below:
+http://{{domain}}{% url 'activate' uidb64=uid token=token %}
+
+If you did not create an account, you can safely ignore this email.
+{% endautoescape %}
