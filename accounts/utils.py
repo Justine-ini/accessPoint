@@ -1,4 +1,10 @@
 from django.core.exceptions import PermissionDenied
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.template.loader import render_to_string
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
 
 
 def get_user_role(user):
@@ -34,3 +40,24 @@ def customer_restrict(user):
     else:
         raise PermissionDenied(
             "You do not have permission to access this page.")
+
+
+def send_verification_email(request, user):
+
+    current_site = get_current_site(request)
+
+    mail_subject = 'Verify your email address'
+    message = render_to_string(
+        'accounts/emails/account_verification_email.html',
+        {
+            'user': user,
+            'domain': current_site,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': default_token_generator.make_token(user),
+        }
+    )
+    to_email = user.email
+    mail = EmailMessage(
+        subject=mail_subject, body=message, to=[to_email]
+    )
+    mail.send()
