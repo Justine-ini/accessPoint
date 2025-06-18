@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from vendor.forms import VendorForm
 from .forms import UserForm, LoginForm
 from .models import User, UserProfile
-from .utils import get_user_role, vendor_restrict, customer_restrict
+from .utils import get_user_role, vendor_restrict, customer_restrict, send_verification_email
 
 
 def register_user(request):
@@ -31,8 +31,12 @@ def register_user(request):
             user.role = User.CUSTOMER
             user.save()
 
+            # Send verification email
+            send_verification_email(request, user)
+
+            # Alert messages
             messages.success(request, 'Account created successfully!')
-            return redirect('home')
+            return redirect('registerUser')
     else:
         form = UserForm()
     context = {
@@ -69,6 +73,13 @@ def register_vendor(request):
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
             vendor.save()
+
+            # Send verification email
+            send_verification_email(request, user)
+
+            # Clear the form data after successful registration
+            form = UserForm()
+
             messages.success(request, 'Vendor account created successfully!')
             return redirect('home')
     else:
@@ -80,6 +91,11 @@ def register_vendor(request):
     }
 
     return render(request, 'accounts/registerVendor.html', context)
+
+
+def activate(request, uidb64, token):
+    # Activate the user by setting the is_active status to True
+    return
 
 
 def login_user(request):
