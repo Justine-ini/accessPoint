@@ -5,6 +5,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.conf import settings
 
 
 def get_user_role(user):
@@ -42,13 +43,14 @@ def customer_restrict(user):
             "You do not have permission to access this page.")
 
 
-def send_verification_email(request, user):
+def send_verification_email(request, user, mail_subject, email_template):
 
     current_site = get_current_site(request)
 
-    mail_subject = 'Verify your email address'
+    from_email = settings.DEFAULT_FROM_EMAIL
+
     message = render_to_string(
-        'accounts/emails/account_verification_email.html',
+        email_template,
         {
             'user': user,
             'domain': current_site,
@@ -58,6 +60,7 @@ def send_verification_email(request, user):
     )
     to_email = user.email
     mail = EmailMessage(
-        subject=mail_subject, body=message, to=[to_email]
+        subject=mail_subject, body=message, from_email=from_email, to=[
+            to_email]
     )
     mail.send()
