@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from vendor.forms import VendorForm
+from vendor.models import Vendor
 from .forms import UserForm, LoginForm
 from .models import User, UserProfile
 from .utils import get_user_role, vendor_restrict, customer_restrict, send_verification_email
