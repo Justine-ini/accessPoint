@@ -108,3 +108,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return str(self.user.get_full_name())
+
+    def full_address(self):
+        lines = filter(None, [self.address_line_1, self.address_line_2])
+        return " | ".join(lines)
