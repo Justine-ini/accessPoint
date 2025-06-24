@@ -9,6 +9,7 @@ class VendorAdmin(admin.ModelAdmin):
     search_fields = ('vendor_name',)
     list_filter = ()
     fieldsets = ()
+    list_editable = ('is_approved',)
 
     def get_vendor(self, obj):
         return obj.vendor_name

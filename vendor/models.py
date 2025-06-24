@@ -1,6 +1,6 @@
 from django.db import models
+from accounts.utils import send_notification_email
 from accounts.models import User, UserProfile
-
 # Create your models here.
 
 
@@ -30,3 +30,28 @@ class Vendor(models.Model):
 
     def __str__(self):
         return str(self.vendor_name)
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            # Get the existing record from DB
+            original = Vendor.objects.get(pk=self.pk)
+
+            # Check if approval status changed
+            if original.is_approved != self.is_approved:
+                mail_template = 'accounts/emails/admin_approval_vendor_email.html'
+                context = {
+                    'user': self.user,
+                    'is_approved': self.is_approved,
+                }
+                if self.is_approved == True:
+                    # Send "approved" email
+                    mail_subject = 'Congratulations! your restaurant is approved'
+                    send_notification_email(
+                        mail_subject, mail_template, context)
+                else:
+                    # Send "disapproved" or "revoked" email
+                    mail_subject = 'Unfortunately, your restaurant is not approved'
+                    send_notification_email(
+                        mail_subject, mail_template, context)
+
+        return super(Vendor, self).save(*args, **kwargs)
