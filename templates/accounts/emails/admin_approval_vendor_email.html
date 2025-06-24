@@ -1,0 +1,11 @@
+{% autoescape off %}
+
+Hi {{ user.first_name }},
+{% if is_approved %}
+Congratulations! your restaurant is approved by our admin team
+{% else %}
+We are sorry you are not eligible for publishing your food menu on our marketplace. For more details, please contact customer support@accesspoint.com.
+{% endif %}
+
+If you did not create an account, you can safely ignore this email.
+{% endautoescape %}
