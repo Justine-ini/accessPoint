@@ -1,7 +1,8 @@
 """Forms for the accounts app."""
 from django.core.validators import validate_email
 from django import forms
-from .models import User
+from .models import User, UserProfile
+from .validators import allow_only_images_validator
 
 
 class UserForm(forms.ModelForm):
@@ -71,3 +72,32 @@ class LoginForm(forms.Form):
             raise forms.ValidationError("Email and password are required.")
 
         return cleaned_data
+
+
+class UserProfileForm(forms.ModelForm):
+
+    profile_picture = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'btn btn-info'}), validators=[allow_only_images_validator]
+    )
+    cover_photo = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'btn btn-info'}), validators=[allow_only_images_validator]
+    )
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            'profile_picture',
+            'cover_photo',
+            'address_line_1',
+            'address_line_2',
+            'country',
+            'state',
+            'city',
+            'pincode',
+            'latitude',
+            'longitude',
+        ]
+        widgets = {
+            'latitude': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'longitude': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }
