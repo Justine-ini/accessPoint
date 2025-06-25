@@ -76,6 +76,13 @@ class LoginForm(forms.Form):
 
 class UserProfileForm(forms.ModelForm):
 
+    address = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Start typing...',
+            'class': 'form-control'
+        })
+    )
     profile_picture = forms.FileField(
         widget=forms.FileInput(attrs={'class': 'btn btn-info'}), validators=[allow_only_images_validator]
     )
@@ -88,8 +95,7 @@ class UserProfileForm(forms.ModelForm):
         fields = [
             'profile_picture',
             'cover_photo',
-            'address_line_1',
-            'address_line_2',
+            'address',
             'country',
             'state',
             'city',
