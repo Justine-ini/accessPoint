@@ -79,8 +79,7 @@ class UserProfileForm(forms.ModelForm):
     address = forms.CharField(
         required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Start typing...',
-            'class': 'form-control'
+            'placeholder': 'Start typing...'
         })
     )
     profile_picture = forms.FileField(
