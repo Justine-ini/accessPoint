@@ -1,0 +1,13 @@
+.btn.btn-info{
+    padding: 2.2px 2px;
+    font-size: 12px;
+    cursor:pointer
+}
+
+/* Used in vendor profile form */
+.google-logo span:nth-child(1) { color: #4285F4; } /* G - Blue */
+.google-logo span:nth-child(2) { color: #DB4437; } /* o - Red */
+.google-logo span:nth-child(3) { color: #F4B400; } /* o - Yellow */
+.google-logo span:nth-child(4) { color: #4285F4; } /* g - Blue */
+.google-logo span:nth-child(5) { color: #0F9D58; } /* l - Green */
+.google-logo span:nth-child(6) { color: #DB4437; } /* e - Red */
