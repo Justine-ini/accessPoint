@@ -28,6 +28,7 @@
                                     <ul>
                                         <li>
                                             <div class="row">
+                                                <!-- Profile Picture -->
                                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                     <div class="restaurant-info">
                                                         <div class="img-holder">
@@ -35,7 +36,11 @@
                                                                 <li class="gal-img">
                                                                     <div class="drag-list">
                                                                         <div class="item-thumb">
-                                                                            <img class="thumbnail" src="{{profile.profile_picture.url}}" alt="Profile picture">
+                                                                            {% if profile.profile_picture %}
+                                                                                <img class="thumbnail" src="{{ profile.profile_picture.url }}" alt="Profile picture">
+                                                                            {% else %}
+                                                                                <img class="thumbnail" src="{% static 'images/default-profile.PNG' %}" alt="No profile picture">
+                                                                            {% endif %}
                                                                         </div>
                                                                     </div>
                                                                 </li>
@@ -44,12 +49,14 @@
                                                         <div class="text-holder">
                                                             <label>Update Profile Picture</label>
                                                             <div class="upload-gallery">
-                                                                {{profile_form.profile_picture}}
+                                                                {{ profile_form.profile_picture }}
                                                             </div>
-                                                            <label class="text-danger">{{profile_form.profile_picture.errors}}</label>
+                                                            <label class="text-danger">{{ profile_form.profile_picture.errors }}</label>
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <!-- Cover Photo -->
                                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                     <div class="restaurant-info">
                                                         <div class="img-holder">
@@ -57,7 +64,11 @@
                                                                 <li class="gal-img">
                                                                     <div class="drag-list">
                                                                         <div class="item-thumb">
-                                                                            <img class="thumbnail" src="{{profile.cover_photo.url}}" alt="Cover photo">
+                                                                            {% if profile.cover_photo %}
+                                                                                <img class="thumbnail" src="{{ profile.cover_photo.url }}" alt="Cover photo">
+                                                                            {% else %}
+                                                                                <img class="thumbnail" src="{% static 'images/default-cover.PNG' %}" alt="No cover photo">
+                                                                            {% endif %}
                                                                         </div>
                                                                     </div>
                                                                 </li>
@@ -66,12 +77,14 @@
                                                         <div class="text-holder">
                                                             <label>Update Cover Photo</label>
                                                             <div class="upload-gallery">
-                                                                {{profile_form.cover_photo}}
+                                                                {{ profile_form.cover_photo }}
                                                             </div>
-                                                            <label class="text-danger">{{profile_form.cover_photos.errors}}</label>
+                                                            <label class="text-danger">{{ profile_form.cover_photo.errors }}</label>
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <!-- Vendor License -->
                                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                     <div class="restaurant-info">
                                                         <div class="img-holder">
@@ -79,7 +92,11 @@
                                                                 <li class="gal-img">
                                                                     <div class="drag-list">
                                                                         <div class="item-thumb">
-                                                                            <img class="thumbnail" src="{{vendor.vendor_license.url}}" alt="Vendor license">
+                                                                            {% if vendor.vendor_license %}
+                                                                                <img class="thumbnail" src="{{ vendor.vendor_license.url }}" alt="Vendor license">
+                                                                            {% else %}
+                                                                                <img class="thumbnail" src="{% static 'images/default-license.PNG' %}" alt="No license uploaded">
+                                                                            {% endif %}
                                                                         </div>
                                                                     </div>
                                                                 </li>
@@ -88,69 +105,81 @@
                                                         <div class="text-holder">
                                                             <label>Update License</label>
                                                             <div class="upload-gallery">
-                                                                {{vendor_form.vendor_license}}
+                                                                {{ vendor_form.vendor_license }}
                                                             </div>
-                                                            <label class="text-danger">{{vendor_form.vendorlicense.errors}}</label>
+                                                            <label class="text-danger">{{ vendor_form.vendor_license.errors }}</label>
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <!-- Restaurant Name -->
                                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                     <div class="field-holder">
                                                         <label>Restaurant name *</label>
-                                                        {{vendor_form.vendor_name}}
+                                                        {{ vendor_form.vendor_name }}
                                                     </div>
                                                 </div>
+
+                                                <!-- Address -->
                                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                     <div class="field-holder">
                                                         <label>Address *</label>
-                                                        {{profile_form.address}}
-                                                        <small class="float-right">Powered by<span class="google-logo">
-                                                            <span>G</span>
-                                                            <span>o</span>
-                                                            <span>o</span>
-                                                            <span>g</span>
-                                                            <span>l</span>
-                                                            <span>e</span>
-                                                        </span>
-                                                    </small>
+                                                        {{ profile_form.address }}
+                                                        <small class="float-right">Powered by
+                                                            <span class="google-logo">
+                                                                <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+                                                            </span>
+                                                        </small>
                                                     </div>
-                                                </div>   
+                                                </div>
+
+                                                <!-- Country -->
                                                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                                     <div class="field-holder">
-                                                        <label>country *</label>
-                                                        {{profile_form.country}}
+                                                        <label>Country *</label>
+                                                        {{ profile_form.country }}
                                                     </div>
-                                                </div>   
+                                                </div>
+
+                                                <!-- State -->
                                                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                                     <div class="field-holder">
-                                                        <label>state *</label>
-                                                        {{profile_form.state}}
+                                                        <label>State *</label>
+                                                        {{ profile_form.state }}
                                                     </div>
-                                                </div>   
+                                                </div>
+
+                                                <!-- City -->
                                                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                                     <div class="field-holder">
-                                                        <label>city *</label>
-                                                        {{profile_form.city}}
+                                                        <label>City *</label>
+                                                        {{ profile_form.city }}
                                                     </div>
-                                                </div>   
+                                                </div>
+
+                                                <!-- Pincode -->
                                                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                                     <div class="field-holder">
-                                                        <label>pincode *</label>
-                                                        {{profile_form.pincode}}
+                                                        <label>Pincode *</label>
+                                                        {{ profile_form.pincode }}
                                                     </div>
-                                                </div>   
+                                                </div>
+
+                                                <!-- Latitude -->
                                                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                                     <div class="field-holder">
-                                                        <label>latitude *</label>
-                                                        {{profile_form.latitude}}
+                                                        <label>Latitude *</label>
+                                                        {{ profile_form.latitude }}
                                                     </div>
-                                                </div>    
+                                                </div>
+
+                                                <!-- Longitude -->
                                                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                                     <div class="field-holder">
-                                                        <label>longitude *</label>
-                                                        {{profile_form.longitude}}
+                                                        <label>Longitude *</label>
+                                                        {{ profile_form.longitude }}
                                                     </div>
-                                                </div>    
+                                                </div>
                                             </div>
                                         </li>
                                     </ul>
@@ -163,7 +192,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <!-- My Restaurants Form End --> 
+                            <!-- My Restaurants Form End -->
                         </div>
                     </div>
                 </div>
@@ -171,6 +200,6 @@
         </div>
     </div>
 </div>
-<!-- Main Section End -->
 
+<!-- Main Section End -->
 {% endblock content %}
