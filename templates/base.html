@@ -20,12 +20,19 @@
 	<link href="{% static 'css/bootstrap-slider.css' %}" rel="stylesheet">
 	<!-- Message alert icon link -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 	
 	<!-- JAVASCRIPT -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="{% static 'js/modernizr.js' %}"></script>
 	<script src="{% static 'js/bootstrap.js' %}"></script>
+	
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+
+	{% comment %} Script to load in HTML head for google location api {% endcomment %}
+	<script src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_API_KEY}}&libraries=places&callback=initAutoComplete" async defer></script>
+	
+	{% comment %} Google API and others {% endcomment %}
+	<script src="{% static 'js/custom.js' %}"></script>
 
 	<style>
 		body, .main-section p, .mce-content-body p{
