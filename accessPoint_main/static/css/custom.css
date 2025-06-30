@@ -1,5 +1,5 @@
-.btn.btn-info{
-    padding: 2.2px 2px;
+.btn{
+    padding: 4px 1.2em;
     font-size: 12px;
     cursor:pointer
 }
