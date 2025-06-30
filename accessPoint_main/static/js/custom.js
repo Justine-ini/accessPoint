@@ -68,7 +68,7 @@ function onPlaceChanged (){
         if(place.address_components[i].types[j] == 'administrative_area_level_2'){
           $('#id_city').val(place.address_components[i].long_name)
         }
-        // get pincode
+        // get postal code
         if(place.address_components[i].types[j] == 'postal_code'){
           $('#id_pincode').val(place.address_components[i].long_name)
         }else{
