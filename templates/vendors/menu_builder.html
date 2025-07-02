@@ -22,8 +22,9 @@
                         <div class="user-holder">
                             <h5 class="text-uppercase">Build Your Food Menu</h5>
                             <!-- My Restaurants Form Start -->
-                             <hr/>
+                            <hr/>
                             <h6>Menu Categories</h6>
+                            {% if categories %}
                             <a class="btn btn-success float-right" href="{% url 'add_fooditem' %}">
                             <i class="fas fa-plus"></i> Add Food
                             </a>
@@ -56,7 +57,17 @@
                                 </tbody>
                             </table>
                             <!-- My Restaurants Form End -->
+                             {% else %}
+                                <div class="text-center">
+                                    <p class="py-4 text-muted">Oops! Looks like you don’t have any categories yet. Let’s create one so you can start adding food.
+                                    </p>
+                                    <a class="btn btn-success" href="{% url 'add_category' %}">
+                                        <i class="fas fa-plus"></i> Add Category
+                                    </a>
+                                </div>
+                             {% endif %}
                         </div>
+
                     </div>
                 </div>
             </div>
