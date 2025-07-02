@@ -5,12 +5,11 @@ from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
 from vendor.forms import VendorForm
-from vendor.models import Vendor
 from .forms import UserForm, LoginForm
 from .models import User, UserProfile
 from .utils import get_user_role, vendor_restrict, customer_restrict, send_verification_email
-from django.utils.http import urlsafe_base64_decode
 
 
 def register_user(request):
@@ -54,6 +53,8 @@ def register_user(request):
 
 
 def register_vendor(request):
+    """Handle vendor registration with form validation, account creation, and email verification"""
+
     if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
         return redirect('myAccount')
@@ -180,7 +181,10 @@ def customer_dashboard(request):
 @login_required(login_url='login')
 @user_passes_test(vendor_restrict)
 def vendor_dashboard(request):
-    return render(request, 'accounts/vendor_dashboard.html')
+    context = {
+        'dashboard_active': request.path == '/vendor-dashboard/' or request.path == '/vendor/'
+    }
+    return render(request, 'accounts/vendor_dashboard.html', context)
 
 
 def forgot_password(request):
