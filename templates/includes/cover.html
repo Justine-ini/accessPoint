@@ -27,8 +27,13 @@
                         <div class="text-holder">
                             <span class="restaurant-title">{{ vendor.vendor_name }}</span>
                             <div class="text">
-                                <i class="icon-location"></i>
-                                {{ vendor.user_profile.address }}
+                                {% if vendor.user_profile.address %}
+                                    <i class="icon-location"></i>
+                                    <small class="text-white bg-dark rounded p-1">{{ vendor.user_profile.address}}</small>
+                                {% else %}
+                                    <i class="icon-location"></i>
+                                    <small class="text-warning">No address added</small>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
