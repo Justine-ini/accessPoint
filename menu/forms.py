@@ -1,5 +1,6 @@
 from django import forms
 from .models import Category, FoodItem
+from accounts.validators import allow_only_images_validator
 
 
 class CategoryForm(forms.ModelForm):
@@ -20,6 +21,9 @@ class FoodItemForm(forms.ModelForm):
         empty_label="Select a category",           # ← this becomes the first choice
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    image = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'btn btn-info w-100'}), validators=[allow_only_images_validator]
+    )
 
     class Meta:
         model = FoodItem
@@ -31,7 +35,3 @@ class FoodItemForm(forms.ModelForm):
             'image',
             'is_available',
         )
-        widgets = {
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
-            'is_available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
