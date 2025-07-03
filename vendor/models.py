@@ -24,6 +24,7 @@ class Vendor(models.Model):
         UserProfile, related_name='user_profile', on_delete=models.CASCADE)
     vendor_name = models.CharField(max_length=50)
     vendor_license = models.ImageField(upload_to='vendor/license')
+    slug = models.SlugField(max_length=100, unique=True)
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
