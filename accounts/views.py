@@ -1,5 +1,6 @@
 """Views for user registration and management."""
 from django.shortcuts import render, redirect
+from django.template.defaultfilters import slugify
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
@@ -80,6 +81,8 @@ def register_vendor(request):
             vendor.user = user
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
+            vendor.vendor_name = v_form.cleaned_data['vendor_name']
+            vendor.slug = slugify(vendor.vendor_name)+'-'+str(user.id)
             vendor.save()
 
             # Send verification email
