@@ -42,7 +42,7 @@
                                                 {{category }}</p>
                                             </a>
                                             
-                                            <small class="text-muted">{{category.description}}</small>
+                                            <small class="text-muted">{{category.description|truncatewords:15}}</small>
                                         </td>
                                         <td><a class="float-right" href="{% url 'delete_category' category.id %}"
                                             onclick="return confirm('Are you sure you want to delete this category?');">
