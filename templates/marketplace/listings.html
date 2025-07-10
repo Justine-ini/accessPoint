@@ -46,7 +46,7 @@
                                                             <div class="post-title">
                                                                 
                                                                 <h5>
-                                                                    <a href="listing-detail.html">{{vendor.vendor_name}}</a>
+                                                                    <a href="{% url 'vendor_detail' vendor.slug %}">{{vendor.vendor_name}}</a>
                                                                 </h5>
                                                                 {% if vendor.user_profile.address %}
                                                                     <span><i class="icon-location text-danger"><small></i>{{vendor.user_profile.address}}</small></span>
@@ -59,7 +59,7 @@
                                                                 Juice</span> {% endcomment %}                                                           
                                                         </div>
                                                         <div class="list-option">
-                                                            <a href="#" class="viewmenu-btn text-color">View Menu</a>
+                                                            <a href="{% url 'vendor_detail' vendor.slug %}" class="viewmenu-btn text-color text-decoration-none">View Menu</a>
                                                         </div>
                                                     </li>
                                                 </ul>
