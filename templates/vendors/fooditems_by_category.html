@@ -47,7 +47,7 @@
                                                     {{food }}</p>
                                                 </a>
                                                 
-                                                <small class="text-muted">{{food.description}}</small>
+                                                <small class="text-muted">{{food.description|truncatewords:10}}</small>
                                             </td>
                                             <td>
                                                 {% if food.is_available %}
