@@ -45,7 +45,6 @@ function onPlaceChanged() {
       var longitude = results[0].geometry.location.lng();
       $("#id_latitude").val(latitude);
       $("#id_longitude").val(longitude);
-
       $("#id_address").val(address);
     }
   });
