@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.views.decorators.http import require_GET
 from vendor.models import Vendor
 from menu.models import Category, FoodItem
@@ -213,8 +213,8 @@ def remove_from_cart(request, cart_id):
     """
     Removes an item from the authenticated user's cart.
 
-    Handles AJAX requests to remove a specific cart item by its ID. 
-        Only processes requests from authenticated users and expects the request 
+    Handles AJAX requests to remove a specific cart item by its ID.
+        Only processes requests from authenticated users and expects the request
         to be made via XMLHttpRequest. Returns a JSON response indicating the result
         of the operation, including updated cart counter information if successful.
 
@@ -223,7 +223,7 @@ def remove_from_cart(request, cart_id):
         cart_id (int): The ID of the cart item to be removed.
 
     Returns:
-        JsonResponse: A JSON response containing the status of the operation, 
+        JsonResponse: A JSON response containing the status of the operation,
             a message, and optionally the updated cart counter.
 
     Possible status values:
@@ -256,3 +256,34 @@ def remove_from_cart(request, cart_id):
         'status': 'login_required',
         'message': 'Please log in to continue. Redirecting...',
     })
+
+
+def search(request):
+    address = request.GET.get('address', '')
+    keyword = request.GET.get('keyword', '')
+    latitude = request.GET.get('lat', '')
+    longitude = request.GET.get('lng', '')
+    radius = request.GET.get('radius', '')
+    # Get vendor ids that has the food item the user is searching for
+    fetch_vendor_by_fooditems = FoodItem.objects.filter(
+        food_title__icontains=keyword, is_available=True
+    ).values_list('vendor', flat=True)
+
+    vendors = Vendor.objects.filter(
+        # Match vendors whose ID is in the list from matching FoodItems…
+        Q(id__in=fetch_vendor_by_fooditems) |
+        # …or whose name contains the keyword…
+        Q(vendor_name__icontains=keyword),
+        # And in both cases, only include approved, active vendors
+        is_approved=True,
+        user__is_active=True,
+    )
+    context = {
+        'vendors': vendors,
+        'vendor_count': vendors.count(),
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+        'radius': radius,
+    }
+    return render(request, 'marketplace/listings.html', context)
