@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
+from django.contrib.gis.db import models as gismodels
+from django.contrib.gis.geos import Point
 
 # Create your models here.
 
@@ -102,8 +104,29 @@ class UserProfile(models.Model):
     pincode = models.CharField(max_length=7, blank=True, null=True)
     latitude = models.CharField(max_length=20, blank=True, null=True)
     longitude = models.CharField(max_length=20, blank=True, null=True)
+    location = gismodels.PointField(
+        blank=True, null=True, srid=4326, geography=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.user.get_full_name())
+        return f"{self.user.email}'s Profile" if self.user else "Unattached Profile"
+
+    def save(self, *args, **kwargs):
+        # Validate and update location only when both lat/lon are present
+        if self.latitude is not None and self.longitude is not None:
+            try:
+                self.location = Point(
+                    float(self.longitude), float(self.latitude))
+            except (TypeError, ValueError):
+                self.location = None
+        else:
+            self.location = None
+
+        # Prevent duplicate profiles for the same user
+        if self.user and not self.pk:
+            existing = UserProfile.objects.filter(user=self.user).first()
+            if existing and existing != self:
+                raise ValueError("A profile already exists for this user.")
+
+        super().save(*args, **kwargs)
