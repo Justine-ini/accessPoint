@@ -1,4 +1,12 @@
-from django.shortcuts import render, get_object_or_404
+from django.utils.translation import gettext as _
+from django.shortcuts import redirect, render
+from django.db.models import Q
+from django.contrib.gis.geos import GEOSGeometry, GEOSException
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, redirect
+# ``D`` is a shortcut for ``Distance``
+from django.contrib.gis.measure import D
+from django.contrib.gis.geos import GEOSGeometry
 from django.http import JsonResponse
 from django.db.models import Prefetch, Q
 from django.views.decorators.http import require_GET
@@ -7,7 +15,7 @@ from menu.models import Category, FoodItem
 from marketplace.models import Cart
 from marketplace.context_processors import get_cart_counter, get_cart_amounts
 from django.contrib.auth.decorators import login_required
-from decimal import Decimal
+from django.contrib.gis.db.models.functions import Distance
 # Create your views here.
 
 
@@ -259,31 +267,60 @@ def remove_from_cart(request, cart_id):
 
 
 def search(request):
-    address = request.GET.get('address', '')
-    keyword = request.GET.get('keyword', '')
+    # Validate required parameters
+    address = request.GET.get('address', '').strip()
+    if not address:
+        messages.error(request, _('Please enter an address to search'))
+        return redirect('marketplace')
+
+    keyword = request.GET.get('keyword', '').strip()
     latitude = request.GET.get('lat', '')
     longitude = request.GET.get('lng', '')
     radius = request.GET.get('radius', '')
-    # Get vendor ids that has the food item the user is searching for
-    fetch_vendor_by_fooditems = FoodItem.objects.filter(
-        food_title__icontains=keyword, is_available=True
-    ).values_list('vendor', flat=True)
 
-    vendors = Vendor.objects.filter(
-        # Match vendors whose ID is in the list from matching FoodItems…
-        Q(id__in=fetch_vendor_by_fooditems) |
-        # …or whose name contains the keyword…
-        Q(vendor_name__icontains=keyword),
-        # And in both cases, only include approved, active vendors
-        is_approved=True,
-        user__is_active=True,
-    )
-    context = {
-        'vendors': vendors,
-        'vendor_count': vendors.count(),
-        'address': address,
-        'latitude': latitude,
-        'longitude': longitude,
-        'radius': radius,
-    }
-    return render(request, 'marketplace/listings.html', context)
+    vendors = Vendor.objects.none()
+
+    try:
+        # Only proceed with geo search if all location parameters are provided
+        if latitude and longitude and radius:
+            try:
+                # Validate and create point geometry
+                pnt = GEOSGeometry(
+                    f'POINT({float(longitude)} {float(latitude)})', srid=4326)
+                radius_km = float(radius)
+
+                # Get vendors with matching food items
+                fetch_vendor_by_fooditems = FoodItem.objects.filter(
+                    food_title__icontains=keyword,
+                    is_available=True
+                ).values_list('vendor', flat=True)
+
+                vendors = Vendor.objects.filter(
+                    Q(id__in=fetch_vendor_by_fooditems) |
+                    Q(vendor_name__icontains=keyword),
+                    is_approved=True,
+                    user__is_active=True,
+                    user_profile__location__distance_lte=(
+                        pnt, D(km=radius_km)),
+                ).annotate(
+                    distance=Distance("user_profile__location", pnt)
+                ).order_by('distance')
+
+                # Convert distance to kilometers for each vendor
+                for vendor in vendors:
+                    vendor.kms = round(vendor.distance.km, 2)
+
+            except (ValueError, GEOSException):
+                messages.warning(request, _('Invalid location parameters'))
+
+        context = {
+            'vendors': vendors,
+            'vendor_count': vendors.count(),
+            'source_location': address,
+            'keyword': keyword,
+        }
+        return render(request, 'marketplace/listings.html', context)
+
+    except Exception:
+        messages.error(request, _('An error occurred during your search'))
+        return redirect('marketplace')
