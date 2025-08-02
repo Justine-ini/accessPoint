@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.contrib.gis.measure import D
 from django.contrib.gis.geos import GEOSGeometry
-from django.db.models import Q
 from django.contrib.gis.db.models.functions import Distance
 from vendor.models import Vendor
 
@@ -25,7 +24,7 @@ def home(request):
         lng, lat = location
         pnt = GEOSGeometry(f'POINT({lng} {lat})', srid=4326)
 
-        vendors = (Vendor.objects.filter(user_profile__location__distance_lte=(pnt, D(km=100)))
+        vendors = (Vendor.objects.filter(user_profile__location__distance_lte=(pnt, D(km=1000)))
                    .annotate(distance=Distance("user_profile__location", pnt))
                    .order_by("distance"))
 
