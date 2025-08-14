@@ -14,24 +14,13 @@ from vendor.models import Vendor, OpeningHour
 from menu.models import Category, FoodItem
 from marketplace.models import Cart
 from marketplace.context_processors import get_cart_counter, get_cart_amounts
-from datetime import datetime, date
+from datetime import date
 
 # Create your views here.
 
 
 def marketplace(request):
-    """
-    View function to display a list of approved and active vendors in the marketplace.
 
-    Retrieves all Vendor objects that are both approved and whose associated user accounts are active.
-    Counts the number of such vendors and passes both the queryset and the count to the template context.
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-
-    Returns:
-        HttpResponse: Rendered HTML page displaying the list of vendors and their count.
-    """
     vendors = Vendor.objects.filter(is_approved=True, user__is_active=True)
     vendor_count = vendors.count()
     context = {
@@ -74,20 +63,7 @@ def vendor_detail(request, slug):
 
 @require_GET  # Ensures this view only responds to GET requests
 def add_to_cart(request, food_id):
-    """
-    Handles adding a food item to the authenticated user's cart via an AJAX request.
-    Parameters:
-        request (HttpRequest): The HTTP request object. Must be an authenticated user and an AJAX request.
-        food_id (int): The ID of the FoodItem to add to the cart.
-    Returns:
-        JsonResponse: A JSON response indicating the result of the operation:
-            - If successful, returns status 'success', a message, updated cart counter, and item quantity.
-            - If the food item does not exist, returns status 'failed' and an error message.
-            - If the request is invalid (not AJAX), returns status 'failed' and an error message.
-            - If the user is not authenticated, returns status 'login_required' and a login prompt message.
-    Raises:
-        FoodItem.DoesNotExist: If the specified food item does not exist in the database.
-    """
+
     if request.user.is_authenticated:
         # More reliable than is_ajax (deprecated)
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':

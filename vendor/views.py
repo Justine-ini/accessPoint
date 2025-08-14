@@ -1,9 +1,8 @@
-from django.utils import timezone
 from django.contrib import messages
 from django.utils.text import slugify
 from django.db import IntegrityError
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem

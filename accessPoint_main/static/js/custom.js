@@ -146,7 +146,8 @@ $(document).ready(function () {
   });
 });
 
-// // DECREASE CART
+
+// DECREASE CART
 
 $(document).ready(function () {
   const notyf = new Notyf();
@@ -261,6 +262,7 @@ $(document).ready(function () {
           // Remove the item from the cart display
           $(`#cart-item-${cart_id}`).remove();
 
+
           // ⬅️ AFTER removal, check if any items remain:
           const remaining = $(".menu-itam-list ul li").length;
           if (remaining === 0) {
@@ -268,10 +270,11 @@ $(document).ready(function () {
             $("#menu-item-list-6272").hide(); // ⬅️ hide list container
             $("#empty-cart-message").show(); // ⬅️ show empty message
           }
+          
           // Update cart amounts
           if (response.cart_amounts) {
             updateCartSummary(response.cart_amounts);
-          }
+          } 
         } else {
           notyf.error(response.message || "Something went wrong.");
         }
@@ -391,12 +394,21 @@ function updateCartSummary(response) {
   // Only run on the /cart/ page
   if (window.location.pathname === "/cart/") {
     if (response && typeof response.cart_subtotal !== "undefined" &&
-        typeof response.cart_tax !== "undefined" &&
+        typeof response.tax_dict !== "undefined" &&
         typeof response.cart_total !== "undefined") {
       // Update each field
       $("#cart_subtotal").html(response.cart_subtotal);
-      $("#cart_tax"     ).html(response.cart_tax);
-      $("#cart_total"   ).html(response.cart_total);
+      $("#tax_dict").html(response.tax_dict);
+      $("#cart_tax").html(response.cart_tax);
+      $("#cart_total").html(response.cart_total);
+
+      for (key1 in response.tax_dict) {
+        for(key2 in response.tax_dict[key1])
+        // Update each tax item
+        $(`#tax_dict-`+key1).html(response.tax_dict[key1][key2]);
+
+      }
     }
   }
 }
+
