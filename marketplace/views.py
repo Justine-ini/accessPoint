@@ -1,21 +1,21 @@
 from django.utils.translation import gettext as _
-from django.shortcuts import redirect, render
-from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry, GEOSException
+from django.contrib.auth.decorators import login_required
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 # ``D`` is a shortcut for ``Distance``
 from django.contrib.gis.measure import D
-from django.contrib.gis.geos import GEOSGeometry
 from django.http import JsonResponse
 from django.db.models import Prefetch, Q
 from django.views.decorators.http import require_GET
-from vendor.models import Vendor
+from datetime import date
+from vendor.models import Vendor, OpeningHour
 from menu.models import Category, FoodItem
 from marketplace.models import Cart
 from marketplace.context_processors import get_cart_counter, get_cart_amounts
-from django.contrib.auth.decorators import login_required
-from django.contrib.gis.db.models.functions import Distance
+from datetime import datetime, date
+
 # Create your views here.
 
 
@@ -42,19 +42,8 @@ def marketplace(request):
 
 
 def vendor_detail(request, slug):
-    """
-    View function to display the details of a specific vendor.
-    Retrieves the vendor object based on the provided slug. Fetches all categories associated with the vendor,
-    prefetching related available food items for efficiency. If the user is authenticated, retrieves their cart items;
-    otherwise, sets cart items to None. Renders the 'marketplace/detail.html' template with the vendor, categories,
-    and cart items in the context.
-    Args:
-        request (HttpRequest): The HTTP request object.
-        slug (str): The slug identifier for the vendor.
-    Returns:
-        HttpResponse: The rendered detail page for the vendor.
-    """
     vendor = get_object_or_404(Vendor, slug=slug)
+
     categories = Category.objects.filter(vendor=vendor).prefetch_related(
         Prefetch(
             'fooditems',
@@ -62,15 +51,23 @@ def vendor_detail(request, slug):
         )
     )
 
-    if request.user.is_authenticated:
-        cart_items = Cart.objects.filter(user=request.user)
-    else:
-        cart_items = None
+    opening_hours = OpeningHour.objects.filter(
+        vendor=vendor
+    ).order_by('day', '-from_hour')
+
+    # Get today's opening hours
+    today = date.today().isoweekday()  # Monday=1, Sunday=7
+    today_opening_hours = opening_hours.filter(day=today)
+
+    cart_items = Cart.objects.filter(
+        user=request.user) if request.user.is_authenticated else None
 
     context = {
         'cart_items': cart_items,
         'vendor': vendor,
         'categories': categories,
+        'opening_hours': opening_hours,
+        'today_opening_hours': today_opening_hours,
     }
     return render(request, 'marketplace/detail.html', context)
 

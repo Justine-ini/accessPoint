@@ -11,3 +11,31 @@
 .google-logo span:nth-child(4) { color: #4285F4; } /* g - Blue */
 .google-logo span:nth-child(5) { color: #0F9D58; } /* l - Green */
 .google-logo span:nth-child(6) { color: #DB4437; } /* e - Red */
+
+
+table > tbody > tr > td {
+    border:none !important;
+}
+/* Opening hours */
+.add_hour{
+    padding: 6px 1em;
+    font-size: 14px;
+}
+
+#opening_hours select option{
+    color: #333;
+}
+
+
+#status-open {
+    color: #fff !important;
+    font-size: small;
+    font-weight: bold;
+}
+
+#status-closed {
+    color: #fff !important;
+    font-size: small;
+    font-weight: bold;
+}
+

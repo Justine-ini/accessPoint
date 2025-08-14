@@ -33,7 +33,9 @@
     <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 
 	<!-- Script to load in HTML head for google location api -->
-	<script src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_API_KEY}}&libraries=places&callback=initAutoComplete" async defer></script>
+	 {% if '/' == request.path or 'profile' in request.path %}
+		<script src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_API_KEY}}&libraries=places&callback=initAutoComplete" async defer></script>
+	{% endif %}
 	<!-- Notyf alerts CDN -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 	<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>

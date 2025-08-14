@@ -283,6 +283,106 @@ $(document).ready(function () {
       },
     });
   });
+
+  // Get the values of the input
+
+  $('.add_hour').on("click", function (e) {
+    e.preventDefault();
+    const day = document.getElementById('id_day').value
+    const from_hour = document.getElementById('id_from_hour').value
+    const to_hour = document.getElementById('id_to_hour').value
+    const is_closed_checked = document.getElementById('id_is_closed').checked;
+    const csrf_token = $('input[name=csrfmiddlewaretoken]').val()
+    const url = document.getElementById('add_hour_url').value
+    console.log(day, from_hour, to_hour, is_closed_checked, csrf_token);
+
+    let is_closed = is_closed_checked ? 'True' : 'False';
+
+  // Validate day is always required
+  if (!day) {
+      notyf.error("Please select a day");
+      return;
+  }
+
+  if (!is_closed && (!fromHour || !toHour)) {
+    notyf.error('Please fill both opening and closing times');
+    return;
+  }
+
+  if (day !== '' && from_hour !== '' && to_hour !== '') {
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: {
+        'day': day,
+        'from_hour': from_hour,
+        'to_hour': to_hour,
+        'is_closed': is_closed,
+        'csrfmiddlewaretoken': csrf_token,
+      },
+      success: function(response){
+
+        if (response.status == 'success'){
+
+          if (response.is_closed == 'Closed'){
+            html = `<tr id="hour-${response.id}">
+                    <td><b>${response.day}</b></td>
+                    <td>${response.is_closed}</td>
+                    <td><a href="#" style="text-decoration: none;" class="remove_hour" data-url="/vendor/opening-hours/remove/${response.id}/">Remove</a></td>
+                    </tr>`;
+
+            notyf.success("Your holiday is successfully added!");
+          }else{
+            html = `<tr id="hour-${response.id}">
+                        <td><b>${response.day}</b></td>
+                        <td>${response.from_hour} - ${response.to_hour}</td>
+                        <td><a href="#" style="text-decoration: none;" class="remove_hour" data-url="/vendor/opening-hours/remove/${response.id}/">Remove</a></td>
+                    </tr>`;
+            notyf.success(response.message || "Opening hour added successfully!.");
+          }
+          console.log(response)
+         
+          $(".opening_hours").append(html);
+          location.reload(true); 
+          document.getElementById("opening_hours").reset();
+
+        }else{
+          notyf.error(response.message || "An entry for this day already exists.");
+        }
+      }
+    })
+  } else {
+    notyf.error( "Please fill all fields.");
+  }
+  });
+
+
+  // Remove opening hour
+  $(document).on('click', '.remove_hour', function(e){
+    e.preventDefault();
+    const url = $(this).attr("data-url");
+
+    if(!url) {
+      console.warn("Missing ID or URL");
+      return;
+    };
+    
+    $.ajax({
+      type: "GET",
+      url: url,
+      success: function(response){
+        if (response.status == 'success'){
+          // Remove the item from the cart display
+          $(`#hour-${response.id}`).remove();
+          notyf.success(response.message || "Opening hour deleted successfully!.");
+          console.log(response)
+        }else{
+          notyf.error(response.message || "Not successfully deleted.");
+        }
+      }
+    })
+  })
+
 });
 
 
