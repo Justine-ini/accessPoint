@@ -1,4 +1,5 @@
 """Forms for the accounts app."""
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django import forms
 from .models import User, UserProfile
@@ -106,3 +107,12 @@ class UserProfileForm(forms.ModelForm):
             'latitude': forms.TextInput(attrs={'readonly': 'readonly'}),
             'longitude': forms.TextInput(attrs={'readonly': 'readonly'}),
         }
+
+
+class UserInfoForm(forms.ModelForm):
+    """Form for updating user information."""
+
+    class Meta:
+        """Meta options for UserInfoForm."""
+        model = User
+        fields = ['first_name', 'last_name', 'phone_number', 'email']

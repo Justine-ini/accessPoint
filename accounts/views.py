@@ -178,7 +178,10 @@ def my_account(request):
 @login_required(login_url='login')
 @user_passes_test(customer_restrict)
 def customer_dashboard(request):
-    return render(request, 'accounts/customer_dashboard.html')
+    context = {
+        'customer_dashboard_active': request.resolver_match.url_name == 'customer_dashboard',
+    }
+    return render(request, 'accounts/customer_dashboard.html', context)
 
 
 @login_required(login_url='login')
