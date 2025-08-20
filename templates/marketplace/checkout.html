@@ -1,0 +1,176 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+
+<!-- Django messages display block -->
+{% include 'includes/alerts.html' %}
+
+<div class="main-section pt-5">
+  <div class="page-section">
+    <div class="container">
+      <div class="row">
+        <!-- Cart Items Section -->
+        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+          <div class="tabs-holder horizontal">
+            <ul class="stickynav-tabs nav nav-tabs">
+              <li class="active">
+                <a data-toggle="tab" href="#home">
+                  <i class="fas fa-shopping-cart"></i> Billing Address
+                </a>
+              </li>
+            </ul>
+
+            <div class="tab-content pt-3">
+              <div id="home" class="tab-pane in active">
+                <div class="menu-itam-holder">
+    
+                  <div id="menu-item-list-6272" class="menu-itam-list">
+                    <form action="#" method="post">
+                      {% csrf_token %}
+                      <div class="row">
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          First Name: {{ order_form.first_name }}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Last Name: {{ order_form.last_name }}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Phone Number: {{ order_form.phone }}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Email Address: {{ order_form.email }}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="form-group col-md-12 col-sm-12 col-lg-12">
+                          Address: {{ order_form.address }}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Country: {{ order_form.country }}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          State: {{ order_form.state }}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          City: {{ order_form.city }}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6 pb-3">
+                          Pin Code: {{ order_form.pin_code }}
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Your Order Summary Section -->
+        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+          <div class="tabs-holder horizontal">
+            <ul class="stickynav-tabs nav nav-tabs">
+              <li class="active">
+                <a data-toggle="tab" href="#home">
+                  <i class="fas fa-shopping-bag"></i> Your Orders
+                </a>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div id="home" class="tab-pane in active">
+                <div class="menu-itam-holder">
+                  <div>
+                  
+                    <ul>
+
+                    <div id="menu-item-list-6272" class="menu-itam-list">
+                    {% if cart_items %} {% for item in cart_items %}
+                    <ul>
+                      <li id="cart-item-{{item.id}}">
+                        <div class="image-holder">
+                          <a href="{{item.fooditem.image.url}}" target="_blank">
+                            <img
+                              src="{{item.fooditem.image.url}}"
+                              alt="Food image"
+                            />
+                          </a>
+                        </div>
+
+                        <div class="text-holder">
+                          <div class="mb-3">
+                            <h6>{{ item.fooditem }}</h6>
+                            <a href="{% url 'vendor_detail' item.fooditem.vendor.slug %}" class="badge badge-warning">{{item.fooditem.vendor}}</a>
+                          </div>
+                        </div>
+                        
+                        <div class="price-holder quantity">
+                          <span style="color: rgb(193, 25, 25); font-weight: bold;">{{item.quantity}} QTY</span> &nbsp;  &nbsp;
+                          <span class="price">£{{ item.fooditem.price }}</span>
+                        </div>
+                      </li>
+
+                      <!-- Hidden span for JS quantity initialization -->
+
+                      <span
+                        id="qty-{{item.fooditem.id}}"
+                        class="item_qty d-none"
+                        data-qty="{{item.quantity}}"
+                      >
+                        {{item.quantity}}
+                      </span>
+                    </ul>
+                    {% endfor %} {% else %}
+                    <div class="card text-center border-0 shadow-sm my-4">
+                      <div class="card-body">
+                        <h5
+                          class="text-danger font-weight-bold"
+                          style="font-size: 1.25rem"
+                        >
+                          <i class="fas fa-exclamation-circle"></i>Your Cart is
+                          empty.
+                        </h5>
+                        <p class="text-muted mb-0">
+                          Explore our menu and add your favorites.
+                        </p>
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+
+                        
+                      <li style="list-style-type: none">
+                        Subtotal
+                        <span class="price float-right">
+                          <span class="currency">£</span>
+                          <span id="cart_subtotal">{{cart_subtotal}}</span>
+                        </span>
+                      </li>
+                      <li style="list-style-type: none">
+                        Tax
+                        <span class="price float-right">
+                          <span class="currency">£</span>
+                          <span id="cart_tax">{{cart_tax}}</span>
+                        </span>
+                      </li>
+                      <li style="list-style-type: none; font-weight: 600">
+                        TOTAL
+                        <span class="price float-right">
+                          <span class="currency">£</span>
+                          <span id="cart_total">{{cart_total}}</span>
+                        </span>
+                      </li>
+                      <button type="submit" class="btn btn-danger w-100 mt-3 mb-2 p-2 text-uppercase">Place Order</button>
+                    </ul>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
