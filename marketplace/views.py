@@ -1,3 +1,4 @@
+from accounts.models import UserProfile
 from django.utils.translation import gettext as _
 from django.contrib.gis.geos import GEOSGeometry, GEOSException
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,9 @@ from menu.models import Category, FoodItem
 from marketplace.models import Cart
 from marketplace.context_processors import get_cart_counter, get_cart_amounts
 from datetime import date
+from orders.forms import OrderForm
+from accounts.models import UserProfile
+from accounts.forms import UserProfileForm, UserInfoForm
 
 # Create your views here.
 
@@ -297,3 +301,33 @@ def search(request):
     except Exception:
         messages.error(request, _('An error occurred during your search'))
         return redirect('marketplace')
+
+
+@login_required(login_url='login')
+def checkout(request):
+    user = request.user
+    cart_items = Cart.objects.filter(user=user).order_by('created_at')
+    cart_count = cart_items.count()
+    if cart_count <= 0:
+        messages.warning(request, _(
+            'Your cart is empty. Please add items to your cart before proceeding to checkout.'))
+        return redirect('marketplace')
+    profile = get_object_or_404(UserProfile, user=request.user)
+    defaults = {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'phone': user.phone_number,
+        'email': user.email,
+        'address': profile.address,
+        'country': profile.country,
+        'state': profile.state,
+        'city': profile.city,
+        'pin_code': profile.pincode,
+    }
+    form = OrderForm(initial=defaults)
+
+    context = {
+        'order_form': form,
+        'cart_items': cart_items,
+    }
+    return render(request, 'marketplace/checkout.html', context)
