@@ -1,72 +1,127 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
 
-<!-- Django messages display block -->
+<!-- Django messages -->
 {% include 'includes/alerts.html' %}
 
 <div class="main-section pt-5">
   <div class="page-section">
     <div class="container">
       <div class="row">
-        <!-- Cart Items Section -->
-        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-          <div class="tabs-holder horizontal">
-            <ul class="stickynav-tabs nav nav-tabs">
-              <li class="active">
-                <a data-toggle="tab" href="#home">
-                  <i class="fas fa-shopping-cart"></i> Billing Address
-                </a>
-              </li>
-            </ul>
+        
+        <form action="{% url 'place_order' %}" method="POST" id="orderForm">
+          {% csrf_token %}
+          <div class="col-lg-6 col-md-12">
+            <div class="tabs-holder horizontal">
+              <ul class="stickynav-tabs nav nav-tabs">
+                <li class="active">
+                  <a data-toggle="tab" href="#billing"><i class="fas fa-address-card"></i> Billing Address</a>
+                </li>
+              </ul>
 
-            <div class="tab-content pt-3">
-              <div id="home" class="tab-pane in active">
-                <div class="menu-itam-holder">
-    
-                  <div id="menu-item-list-6272" class="menu-itam-list">
-                    <form action="#" method="post">
-                      {% csrf_token %}
-                      <div class="row">
-                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                          First Name: {{ order_form.first_name }}
-                        </div>
-                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                          Last Name: {{ order_form.last_name }}
-                        </div>
-                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                          Phone Number: {{ order_form.phone }}
-                        </div>
-                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                          Email Address: {{ order_form.email }}
-                        </div>
+              <div class="tab-content pt-3">
+                <div id="billing" class="tab-pane in active">
+                  <div class="menu-itam-holder">
+                    <div class="menu-itam-list row">
+                      <div class="form-group col-md-6">
+                        First Name: {{ order_form.first_name }}
                       </div>
-                      <div class="row">
-                        <div class="form-group col-md-12 col-sm-12 col-lg-12">
-                          Address: {{ order_form.address }}
-                        </div>
+                      <div class="form-group col-md-6">
+                        Last Name: {{ order_form.last_name }}
                       </div>
-                      <div class="row">
-                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                          Country: {{ order_form.country }}
-                        </div>
-                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                          State: {{ order_form.state }}
-                        </div>
-                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                          City: {{ order_form.city }}
-                        </div>
-                        <div class="form-group col-md-6 col-sm-12 col-lg-6 pb-3">
-                          Pin Code: {{ order_form.pin_code }}
-                        </div>
+                      <div class="form-group col-md-6">
+                        Phone: {{ order_form.phone }}
                       </div>
+                      <div class="form-group col-md-6">
+                        Email: {{ order_form.email }}
+                      </div>
+                      <div class="form-group col-md-12">
+                        Address: {{ order_form.address }}
+                      </div>
+                      <div class="form-group col-md-6">
+                        Country: {{ order_form.country }}
+                      </div>
+                      <div class="form-group col-md-6">
+                        State: {{ order_form.state }}
+                      </div>
+                      <div class="form-group col-md-6">
+                        City: {{ order_form.city }}
+                      </div>
+                      <div class="form-group col-md-6">
+                        Pin Code: {{ order_form.pin_code }}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Your Order Summary Section -->
-        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+          <!-- Order Summary -->
+          <!-- <div class="col-lg-6 col-md-12">
+            <div class="tabs-holder horizontal">
+              <ul class="stickynav-tabs nav nav-tabs">
+                <li class="active">
+                  <a data-toggle="tab" href="#orders"><i class="fas fa-shopping-bag"></i> Your Orders</a>
+                </li>
+              </ul>
+
+              <div class="tab-content">
+                <div id="orders" class="tab-pane in active">
+                  <div class="menu-itam-holder">
+                    <ul class="menu-itam-list">
+                      {% for item in cart_items %}
+                      <li id="cart-item-{{item.id}}" class="d-flex align-items-center mb-2">
+                        <div class="image-holder mr-2">
+                          <a href="{{ item.fooditem.image.url }}" target="_blank">
+                            <img src="{{ item.fooditem.image.url }}" alt="Food image" width="50"/>
+                          </a>
+                        </div>
+                        <div class="flex-fill">
+                          <h6>{{ item.fooditem }}</h6>
+                          <a href="{% url 'vendor_detail' item.fooditem.vendor.slug %}" class="badge badge-warning">{{ item.fooditem.vendor }}</a>
+                        </div>
+                        <div class="price-holder text-right">
+                          <span style="color:#c11919;font-weight:bold;">{{ item.quantity }} QTY</span> &nbsp;
+                          <span class="price">£{{ item.fooditem.price }}</span>
+                        </div>
+                      </li>
+                      {% endfor %}
+
+                      <li class="d-flex justify-content-between">
+                        Subtotal <span>£{{ cart_subtotal }}</span>
+                      </li>
+                      <li class="d-flex justify-content-between">
+                        Tax <span>£{{ cart_tax }}</span>
+                      </li>
+                      <li class="d-flex justify-content-between font-weight-bold">
+                        TOTAL <span>£{{ cart_total }}</span>
+                      </li>
+                    </ul>
+
+                    <h5 class="mt-3">Select Payment Method</h5>
+                    <div class="payment-method mb-3">
+                      <label>
+                        <input type="radio" name="payment_method" value="paystack"> 
+                        <img src="{% static 'images/paystack.png' %}" width="100" alt="Paystack"/>
+                      </label>
+                      <label>
+                        <input type="radio" name="payment_method" value="flutterwave"> 
+                        <img src="{% static 'images/flutterwave_logo.png' %}" width="130" alt="Flutterwave"/>
+                      </label>
+                    </div>
+
+                    <button onclick="return payMethodConfirm();" type="submit" class="btn btn-danger w-100 p-2 text-uppercase">
+                      Place Order
+                    </button>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> -->
+                  <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
           <div class="tabs-holder horizontal">
             <ul class="stickynav-tabs nav nav-tabs">
               <li class="active">
@@ -84,7 +139,7 @@
                     <ul>
 
                     <div id="menu-item-list-6272" class="menu-itam-list">
-                    {% if cart_items %} {% for item in cart_items %}
+                    {% for item in cart_items %}
                     <ul>
                       <li id="cart-item-{{item.id}}">
                         <div class="image-holder">
@@ -119,27 +174,11 @@
                         {{item.quantity}}
                       </span>
                     </ul>
-                    {% endfor %} {% else %}
-                    <div class="card text-center border-0 shadow-sm my-4">
-                      <div class="card-body">
-                        <h5
-                          class="text-danger font-weight-bold"
-                          style="font-size: 1.25rem"
-                        >
-                          <i class="fas fa-exclamation-circle"></i>Your Cart is
-                          empty.
-                        </h5>
-                        <p class="text-muted mb-0">
-                          Explore our menu and add your favorites.
-                        </p>
-                      </div>
-                    </div>
-                    {% endif %}
+                    {% endfor %}
                   </div>
 
-                        
-                      <li style="list-style-type: none">
-                        Subtotal
+                  <li style="list-style-type: none">
+                    Subtotal
                         <span class="price float-right">
                           <span class="currency">£</span>
                           <span id="cart_subtotal">{{cart_subtotal}}</span>
@@ -159,18 +198,62 @@
                           <span id="cart_total">{{cart_total}}</span>
                         </span>
                       </li>
-                      <button type="submit" class="btn btn-danger w-100 mt-3 mb-2 p-2 text-uppercase">Place Order</button>
+                      <h5 class="text-danger">Select Payment Method</h5>
+                      <div class="payment-method">
+                        <label>
+                          <input type="radio" name="payment_method" value="paystack">
+                          <img src="{% static 'images/paystack.png' %}" style="width: 100px; " alt="Paystack Logo" /> &nbsp; &nbsp; &nbsp; &nbsp;
+                        </label>
+                        <label>
+                          <input type="radio" name="payment_method" value="flutterwave">
+                          <img src="{% static 'images/flutterwave_logo.png' %}" style="width: 130px;" alt="Flutterwave Logo" />
+                        </label>
+                      </div>
+                      <button onclick="return payMethodConfirm();" type="submit" class="btn btn-danger w-100 mt-2 mb-2 p-2 text-uppercase font-weight-bold" style="font-size: 13px;">Place Order</button>
                     </ul>
                     </form>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+
+
+        </form>
+
       </div>
     </div>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function payMethodConfirm() {
+    const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
+
+    if (!selectedPaymentMethod) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please select a payment method before placing the order.'
+      });
+      return false;
+    }
+
+    Swal.fire({
+      title: 'Confirm Payment',
+      text: 'You selected ' + selectedPaymentMethod.value + '. Proceed?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, place order',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById('orderForm').submit();  // ✅ Submit form as POST
+      }
+    });
+
+    return false; // Prevent immediate submission
+  }
+</script>
 
 {% endblock content %}
