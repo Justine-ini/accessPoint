@@ -1,0 +1,218 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+
+<!-- Django messages display block -->
+{% include 'includes/alerts.html' %}
+
+<div class="main-section pt-5">
+  <div class="page-section">
+    <div class="container">
+      <div class="row">
+        <!-- Cart Items Section -->
+        <div class="col-lg-8 col-md-6 col-sm-12 col-xs-12">
+          <div class="tabs-holder horizontal">
+            <ul class="stickynav-tabs nav nav-tabs">
+              <li class="active">
+                <a data-toggle="tab" href="#home">
+                  <i class="fas fa-address-card"></i>Review Your Billing Address
+                </a>
+              </li>
+            </ul>
+
+            <div class="tab-content pt-3">
+              <div id="home" class="tab-pane fade show active">
+                <div class="menu-item-holder">
+                  <div id="menu-item-list-6272" class="card shadow-sm border-0 rounded-3 menu-itam-list">
+                    <div class="card-body">
+                      <h4 class="card-title mb-4 text-primary">Billing Address</h4>
+
+                      <p class="mb-1"><strong>{{ order.name }}</strong></p>
+                      <p class="mb-1">{{ order.address }}</p>
+                      <p class="mb-1">{{ order.city }} - {{ order.pin_code }}</p>
+                      <p class="mb-1">{{ order.state }}, {{ order.country }}</p>
+
+                      <hr>
+
+                      <p class="mb-1"><strong>Phone:</strong> {{ order.phone }}</p>
+                      <p class="mb-1"><strong>Email:</strong> {{ order.email }}</p>
+                      <p class="mb-1"><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+
+                      <div class="mt-4">
+                        <a href="{% url 'checkout' %}" class="btn btn-danger btn-sm px-4 mt-3 font-weight-bold" style="font-size: 13px;">
+                          Edit
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Your Order Summary Section -->
+        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+          <div class="tabs-holder horizontal">
+            <ul class="stickynav-tabs nav nav-tabs">
+              <li class="active">
+                <a data-toggle="tab" href="#home">
+                  <i class="fas fa-shopping-bag"></i> Your Orders
+                </a>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div id="home" class="tab-pane in active">
+                <div class="menu-itam-holder">
+                  <div>
+
+                    <table class="table place-order-table">
+                      <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                          <td><img src="{{item.fooditem.image.url}}" width="50" alt="Food Image"></td>
+                          <td><b>{{ item.fooditem }}</b></td>
+                          <td><b>{{ item.quantity }}</b></td>
+                          <td><b>£{{ item.fooditem.price|floatformat:2 }}</b></td>
+
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+
+                    <ul>
+                      <li style="list-style-type: none">
+                        Subtotal
+                        <span class="price float-right">
+                          <span class="currency">£</span>
+                          <span id="cart_subtotal">{{cart_subtotal}}</span>
+                        </span>
+                      </li>
+                      <li style="list-style-type: none">
+                        Tax
+                        <span class="price float-right">
+                          <span class="currency">£</span>
+                          <span id="cart_tax">{{cart_tax}}</span>
+                        </span>
+                      </li>
+                      <li style="list-style-type: none; font-weight: 600">
+                        TOTAL
+                        <span class="price float-right">
+                          <span class="currency">£</span>
+                          <span id="cart_total">{{cart_total}}</span>
+                        </span>
+                      </li>
+                      <button id="paystack-button-id" class="paystack-button w-100 mt-3 p-2" onclick="payWithPaystack()">
+                          Pay with Paystack
+                      </button>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // Get CSRF cookie (using jQuery)
+  function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+
+  var csrftoken = getCookie('csrftoken');
+
+  // Make url and order_number global so both functions can use them
+  const url = "{% url 'payments' %}";
+  const order_number = "{{ order.order_number }}";
+  const total = "{{ cart_total|floatformat:2 }}";
+  const order_complete = "{% url 'order_complete' %}";
+
+  function payWithPaystack() {
+    const handler = PaystackPop.setup({
+      key: '{{ PAYSTACK_PUBLIC_KEY }}',
+      email: '{{ user.email }}',
+      amount: total * 100, // amount in kobo
+      currency: 'NGN',
+      ref: 'Ref_' + '{{ reference }}',
+      metadata: {
+          custom_fields: [
+              {
+                  display_name: "Product Name",
+                  variable_name: "product_name",
+                  value: "Premium Package"
+              }
+          ]
+      },
+      callback: function(response) {
+        console.log('Payment callback response:', response);
+
+        var status = response.status;
+        var reference = response.reference;
+        var payment = response.payment;  // ⚠️ Paystack doesn’t actually return `payment`
+        
+        // Send reference to backend for verification
+        verifyPayment(reference, payment, status);
+      },
+      onClose: function() {
+          alert('Payment window closed.');
+      }
+    });
+    handler.openIframe();
+  }
+
+  function verifyPayment(reference, payment, status) {
+      if (!reference) {
+        console.error('Missing reference to verify');
+        return;
+      }
+
+      console.log('Before Ajax - verifying reference:', reference);
+      console.log('Before Ajax - verifying URL:', url);
+
+      $.ajax({
+          url: url,
+          type: 'POST',
+          data: {
+            'order_number': order_number,
+            'reference': reference,
+            'payment_method': payment || 'paystack', // fallback
+            'status': status,
+            'csrfmiddlewaretoken': csrftoken,
+          },
+
+          success: function(response) {
+              if (response.status === 'success') {
+                document.getElementById('paystack-button-id').innerHTML = '<h5 class="text-center"><i class="fa fa-spinner fa-spin"></i> Please wait...</h5>';
+                  console.log('Payment verified successfully:', response);
+                  // You can access the order number and transaction ID here from views
+                  alert('Payment verified successfully!');
+                  window.location.href = order_complete + "?order_number=" + response.order_number + "&transaction_id=" + response.transaction_id;
+              } else {
+                  alert('Payment verification failed. Please contact support.');
+              }
+          },
+          error: function(xhr, errmsg, err) {
+              console.error('Ajax error:', errmsg);
+              alert('An error occurred while verifying the payment. Please try again.');
+          }
+      });
+  }
+</script>
+
+
+{% endblock content %}

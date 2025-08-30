@@ -1,0 +1,10 @@
+{% autoescape off %}
+
+Hi {{ user.first_name }},
+
+Thank you for your order! Your order has been successfully placed.
+Your order number is {{ order.order_number }}.
+Transaction ID: {{ order.payment.transaction_id }}
+
+If you did not create an account, you can safely ignore this email.
+{% endautoescape %}

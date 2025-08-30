@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-4 p-md-5">
+          
+          <!-- Logo -->
+          <div class="text-center mb-4">
+            <img src="{% static 'logo/foodOnlineLogo.png' %}" alt="Company Logo" class="img-fluid" style="max-width:200px;">
+          </div>
+
+          <!-- Header -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h4 class="text-success font-weight-bold">🎉 Thank you for your order!</h4>
+              <p class="mb-0 text-muted">Your order has been successfully placed.</p>
+            </div>
+            <div class="col-md-6 text-md-right mt-3 mt-md-0">
+              <p class="mb-0 font-weight-bold">{{ order.name }}</p>
+              <p class="mb-0">{{ order.address }}</p>
+              <p class="mb-0">{{ order.phone }}</p>
+              <p class="mb-0">{{ order.email }}</p>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Order Summary -->
+          <h5 class="mb-3">Hello {{ order.first_name }},</h5>
+          <h6 class="text-danger">Here’s your order summary:</h6>
+          <div class="row text-center text-md-left mb-4">
+            <div class="col-6 col-md-3 mb-3">
+              <span class="d-block text-muted">Order Date</span>
+              <span class="font-weight-bold">{{ order.created_at }}</span>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <span class="d-block text-muted">Order Number</span>
+              <span class="font-weight-bold">{{ order.order_number }}</span>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <span class="d-block text-muted">Payment Method</span>
+              <span class="font-weight-bold">{{ order.payment_method }}</span>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <span class="d-block text-muted">Transaction ID</span>
+              <span class="font-weight-bold">{{ order.payment.transaction_id }}</span>
+            </div>
+          </div>
+
+          <!-- Ordered Items -->
+          <div class="table-responsive mb-4">
+            <table class="table table-striped table-hover align-middle">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">Item</th>
+                  <th scope="col">Vendor</th>
+                  <th scope="col">Qty</th>
+                  <th scope="col">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for item in ordered_foods %}
+                <tr>
+                  <td>
+                    <img src="{{ item.fooditem.image.url }}" alt="Food" class="img-thumbnail mr-2" style="width:60px;">
+                    <strong>{{ item.fooditem }}</strong>
+                  </td>
+                  <td>
+                    <a href="{% url 'vendor_detail' item.fooditem.vendor.slug %}" 
+                       class="badge badge-success">
+                      {{ item.fooditem.vendor.vendor_name }}
+                    </a>
+                  </td>
+                  <td><strong>{{ item.quantity }}</strong></td>
+                  <td><strong>£{{ item.fooditem.price|floatformat:2 }}</strong></td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Totals -->
+          <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-left mb-4 mb-md-0">
+              <img src="{% static 'images/paid.png' %}" alt="Paid" class="img-fluid" style="max-width:150px;">
+            </div>
+            <div class="col-md-6">
+              <ul class="list-unstyled">
+                <li class="d-flex justify-content-between mb-2">
+                  <span>Subtotal</span>
+                  <span><strong>£{{ subtotal }}</strong></span>
+                </li>
+                <li class="d-flex justify-content-between mb-2">
+                  <span>Tax</span>
+                  <span><strong>£{{ tax }}</strong></span>
+                </li>
+                <li class="d-flex justify-content-between border-top pt-2 font-weight-bold">
+                  <span>Total</span>
+                  <span>£{{ grand_total }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Footer -->
+          <div class="row">
+            <div class="col-md-6 text-center text-md-left">
+              <p class="mb-1 font-weight-bold">Thank you for ordering with us!</p>
+              <small class="text-muted">AccessPoint Team</small>
+            </div>
+            <div class="col-md-6 text-center text-md-right mt-3 mt-md-0">
+              <p class="mb-1 font-weight-bold">Need help?</p>
+              <small>📞 +2348168817501</small>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

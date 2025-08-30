@@ -1,0 +1,20 @@
+{% autoescape off %}
+Subject: New Order Received - Order #{{ order.order_number }}
+
+Order Number: {{ order.order_number }}
+Transaction ID: {{ order.payment.transaction_id }}
+
+Here are the items ordered from you:
+{% for item in items %}
+- {{ item.fooditem.food_title }} (x{{ item.quantity }}) - £{{ item.fooditem.price }} each
+{% endfor %}
+Total for your items: £{{ total_amount }}
+
+
+Please prepare the items for delivery.
+
+If you believe you received this email in error, you can safely ignore it.
+
+{% endautoescape %}
+Best regards,
+The AccessPoint Team
