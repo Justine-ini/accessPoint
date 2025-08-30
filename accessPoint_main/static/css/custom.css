@@ -39,3 +39,29 @@ table > tbody > tr > td {
     font-weight: bold;
 }
 
+
+.paystack-button {
+    background-color: #00A859;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+        
+.paystack-button:hover {
+    background-color: #008A4B;
+}
+        
+.paystack-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* For the place order page */
+.place-order-table td {
+    padding: 0.75rem 0px !important;
+}
