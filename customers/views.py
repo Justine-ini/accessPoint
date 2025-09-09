@@ -4,14 +4,9 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from accounts.forms import UserInfoForm, UserProfileForm
 from accounts.models import UserProfile
-# from .models import Customer
+from orders.models import Order, OrderedFood
+from django.core.paginator import Paginator
 
-# Create your views here.
-
-
-# def customer(request):
-#     customer = Customer.objects.get(user=request.user)
-#     return customer
 
 @login_required(login_url='login')
 def customer_profile(request):
@@ -48,3 +43,40 @@ def customer_profile(request):
         'customer_profile_active': request.resolver_match.url_name == 'customer_profile',
     }
     return render(request, 'customers/customer_profile.html', context)
+
+
+@login_required(login_url='login')
+def my_orders(request):
+    orders = Order.objects.filter(
+        user=request.user, is_ordered=True).order_by('-created_at')
+
+    paginator = Paginator(orders, 10)   # 10 orders per page
+    page_number = request.GET.get('page') or 1
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj,
+        # keep backward-compatibility if other code expects 'orders' variable:
+        'orders': page_obj.object_list,
+        'order_count': orders.count(),
+        'customer_my_orders_active': request.resolver_match.url_name == 'customer_my_orders',
+    }
+    return render(request, 'customers/my_orders.html', context)
+
+
+@login_required(login_url='login')
+def order_detail(request, order_number):
+    try:
+        order = get_object_or_404(
+            Order, order_number=order_number, user=request.user, is_ordered=True)
+        ordered_foods = OrderedFood.objects.filter(order=order)
+    except Order.DoesNotExist:
+        return redirect('customer')
+
+    subtotal = sum(item.amount for item in ordered_foods)
+
+    context = {
+        "subtotal": subtotal,
+        'order': order,
+        'ordered_foods': ordered_foods,
+    }
+    return render(request, 'customers/order_detail.html', context)
