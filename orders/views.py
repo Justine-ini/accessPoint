@@ -2,19 +2,18 @@ import secrets
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from marketplace.models import Cart
+# from reportlab.lib.pagesizes import A4
+# from reportlab.pdfgen import canvas
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from marketplace.context_processors import get_cart_amounts
-from accounts.utils import send_notification_email
 from django.utils.translation import gettext as _
+from marketplace.context_processors import get_cart_amounts
+from marketplace.models import Cart
+from accounts.utils import send_notification_email
 from orders.utils import generate_order_number
 from .forms import OrderForm
 from .models import Order, Payment, OrderedFood
-# Create your views here.
 
 
 @login_required(login_url='login')
