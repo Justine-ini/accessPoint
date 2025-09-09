@@ -65,3 +65,37 @@ table > tbody > tr > td {
 .place-order-table td {
     padding: 0.75rem 0px !important;
 }
+
+/* CUSTOMER DASHBOARD ORDER TABLE */
+
+/* make the "Recent Orders" table taller and more readable */
+.table-tall th,
+.table-tall td {
+  /* increase line height for multi-line content */
+  line-height: 1.6;            /* 1.4–1.8 is usually a good range */
+  /* increase vertical padding to enlarge row height */
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+  vertical-align: middle;     /* keep content vertically centred */
+}
+
+/* tweak smaller screens so rows don't become huge on mobile */
+@media (max-width: 575.98px) {
+  .table-tall th,
+  .table-tall td {
+    line-height: 1.3;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+}
+
+
+/* Customer Order Details */
+
+/* Scoped styles for order detail */
+.order-header .order-meta { font-size: .95rem; color: #6c757d; }
+.order-items img.product-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; }
+.order-summary .table td, .order-summary .table th { border-top: 0; }
+@media (max-width: 576px) {
+  .order-items img.product-thumb { width: 48px; height: 48px; }
+}
