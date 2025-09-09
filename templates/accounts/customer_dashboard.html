@@ -13,89 +13,164 @@
     <div class="page-section account-header buyer-logged-in">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
-                    {% comment %} Load the sidebar here {% endcomment %}
+                <!-- Sidebar -->
+                <div class="col-lg-3 col-md-3 col-sm-12">
                     {% include 'includes/customer_sidebar.html' %}
                 </div>
-                <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+
+                <!-- Main content -->
+                <div class="col-lg-9 col-md-9 col-sm-12">
                     <div class="user-dashboard loader-holder">
                         <div class="user-holder">
-                            
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                <div class="row">
-                                    <div class="element-title has-border right-filters-row">
-                                        <h5>Recent Orders</h5>
-                                        <div class="right-filters row pull-right">
-                                            <div class="col-lg-6 col-md-6 col-xs-6">
-                                                <div class="input-field">
-                                                    <select class="chosen-select-no-single">
-                                                        <option selected="selected" value="">Select Orders Status</option>
-                                                        <option value="Processing">Processing</option>
-                                                        <option value="Cancelled">Cancelled</option>
-                                                        <option value="Completed">Completed</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            
+                            <!-- Overview cards -->
+                            <h5 class="text-uppercase">Overview</h5>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-header">
+                                            Total Orders
+                                        </div>
+                                        <div class="card-body text-center">
+                                            <a href="#" class="text-decoration-none">
+                                                <h5 class="card-title mb-0">{{ order_count }}</h5>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-8 col-md-8 col-sm-12 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-header">
+                                            Logged in as: <b>{{ user.get_full_name }}</b>
+                                        </div>
+                                        <div class="card-body text-center">
+                                            <a href="{% url 'customer_profile' %}" class="text-decoration-none">
+                                                <h5 class="card-title mb-0"><i class="fas fa-user-edit"></i> Edit profile</h5>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                            <br>
+
+                            <!-- Recent Orders Header -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                              <div>
+                                <h5 class="text-uppercase mb-0">Recent Orders</h5>
+                                <small class="text-muted">{% comment %} optional subtitle {% endcomment %}</small>
+                              </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-12">
                                     <div class="user-orders-list">
                                         <div class="responsive-table">
-                                            <ul class="table-generic">
-                                                <li class="order-heading-titles">
-                                                    <div>Order id</div>
-                                                    <div>Date</div>
-                                                    <div>Total Price</div>
-                                                    <div>Charges</div>
-                                                    <div>Received</div>
-                                                    <div>Status</div>
-                                                </li>
-                                                <li class="order-heading-titles">
-                                                    <div><a href="#" data-toggle="modal" data-target="#order-det-22606">order-22606</a></div>
-                                                    <div>Apr 9,2020</div>
-                                                    <div>£ 38.99</div>
-                                                    <div>£ 3.90</div>
-                                                    <div>£ 35.09</div>
-                                                    <div><span class="order-status" style="background-color: #047a06;">Completed</span></div>
-                                                </li>
-                                                
-                                                
-                                                
-                                                <li class="order-heading-titles">
-                                                    <div><a href="#" data-toggle="modal" data-target="#order-det-22606">order-22583</a></div>
-                                                    <div>Apr 9,2020</div>
-                                                    <div>£ 26.22</div>
-                                                    <div>£ 2.62</div>
-                                                    <div>£ 23.60</div>
-                                                    <div><span class="order-status" style="background-color: #1e73be;">Processing</span></div>
-                                                </li>
-                                                <li class="order-heading-titles">
-                                                    <div><a href="#" data-toggle="modal" data-target="#order-det-22606">order-22493</a></div>
-                                                    <div>Apr 2,2020</div>
-                                                    <div>£ 28.24</div>
-                                                    <div>£ 2.82</div>
-                                                    <div>£ 25.42</div>
-                                                    <div><span class="order-status" style="background-color: #047a06;">Completed</span></div>
-                                                </li>
-                                            </ul>
 
-                                        </div>												
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                                          {# If there are no orders: show message only #}
+                                          {% if not orders %}
+                                            <div class="card border-0 shadow-sm py-5 text-center">
+                                              <div class="card-body">
+                                                <h5 class="mb-2 text-danger">You have no orders yet.</h5>
+                                                <p class="small text-muted mb-0">Once you place an order, it will appear here.</p>
+                                              </div>
+                                            </div>
+
+                                          {# If there are orders: show table. Display last 5 when >=5 #}
+                                          {% else %}
+                                            <div class="table-responsive shadow-sm rounded">
+                                              <table class="table table-striped table-hover table-sm align-middle mb-0 table-tall" >
+                                                <thead class="table-light">
+                                                  <tr>
+                                                    <th scope="col" class="fw-semibold">Order #</th>
+                                                    <th scope="col" class="fw-semibold">Customer</th>
+                                                    <th scope="col" class="fw-semibold text-end">Total</th>
+                                                    <th scope="col" class="fw-semibold">Status</th>
+                                                    <th scope="col" class="fw-semibold">Date</th>
+                                                    <th scope="col" class="fw-semibold text-center">Action</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody>
+                                                  {# If 5 or more, slice to show only the first 5 items (assumes orders are sorted newest→oldest) #}
+                                                  {% if orders|length >= 5 %}
+                                                    {% for order in orders|slice:":5" %}
+                                                      <tr>
+                                                        <td><strong class="text-dark">{{ order.order_number }}</strong></td>
+
+                                                        <td>
+                                                            <span>{{ order.user.get_full_name }}</span>
+                                                        </td>
+
+                                                        <td class="text-end">£{{ order.total|floatformat:2 }}</td>
+
+                                                        <td>
+                                                            <span class="badge bg-success text-white" style="font-weight:800;">{{ order.status }}</span>
+                                                        </td>
+
+                                                        <td>
+                                                          <span class="text-muted">{{ order.created_at|date:"M d, Y H:i" }}</span>
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                          <a href="{% url 'order_detail' order.order_number %}" class="btn btn-danger" aria-label="View order {{ order.order_number }}">
+                                                            <i class="fas fa-eye me-1" aria-hidden="true"></i> Details
+                                                          </a>
+                                                        </td>
+                                                      </tr>
+                                                    {% endfor %}
+
+                                                  {% else %}
+                                                    {# Fewer than 5 orders: show them all #}
+                                                    {% for order in orders %}
+                                                      <tr>
+                                                        <td><strong class="text-dark">{{ order.order_number }}</strong></td>
+
+                                                        <td>
+                                                            <span>{{ order.user.get_full_name }}</span>
+                                                        </td>
+
+                                                        <td class="text-end">£{{ order.total|floatformat:2 }}</td>
+
+                                                        <td>
+                                                            <span class="badge bg-success text-white" style="font-weight:800;">{{ order.status }}</span>
+                                                        </td>
+
+                                                        <td>
+                                                          <span class="text-muted">{{ order.created_at|date:"M d, Y H:i" }}</span>
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                          <a href="#" class="btn btn btn-danger" aria-label="View order {{ order.order_number }}">
+                                                            <i class="fas fa-eye me-1" aria-hidden="true"></i> Details
+                                                          </a>
+                                                        </td>
+                                                      </tr>
+                                                    {% endfor %}
+                                                  {% endif %}
+                                                </tbody>
+                                              </table>
+                                            </div>
+
+                                            {# Footer note shown only when we limited to last 5 #}
+                                            {% if orders|length >= 5 %}
+                                              <div class="mt-2 text-end small text-muted">
+                                                Showing last 5 orders
+                                              </div>
+                                            {% endif %}
+                                          {% endif %}
+
+                                        </div> <!-- /.responsive-table -->
+                                    </div> <!-- /.user-orders-list -->
+                                </div> <!-- /.col-12 -->
+                            </div> <!-- /.row (orders) -->
+
+                        </div> <!-- /.user-holder -->
+                    </div> <!-- /.user-dashboard -->
+                </div> <!-- /.col main -->
+            </div> <!-- /.row -->
+        </div> <!-- /.container -->
+    </div> <!-- /.page-section -->
+</div> <!-- /.main-section -->
 <!-- Main Section End -->
 
 {% endblock content %}
-
