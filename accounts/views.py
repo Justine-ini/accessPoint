@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
+from orders.models import Order
 from vendor.forms import VendorForm
 from .forms import UserForm, LoginForm
 from .models import User, UserProfile
@@ -178,8 +179,12 @@ def my_account(request):
 @login_required(login_url='login')
 @user_passes_test(customer_restrict)
 def customer_dashboard(request):
+    orders = Order.objects.filter(
+        user=request.user, is_ordered=True).order_by('-created_at')
     context = {
-        'customer_dashboard_active': request.resolver_match.url_name == 'customer_dashboard',
+        'customer_dashboard_active': request.resolver_match.url_name == 'customer-dashboard' or request.path == '/customer/',
+        'orders': orders,
+        'order_count': orders.count(),
     }
     return render(request, 'accounts/customer_dashboard.html', context)
 
