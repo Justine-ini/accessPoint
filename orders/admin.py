@@ -12,7 +12,7 @@ class OrderedFoodInline(admin.TabularInline):
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('order_number', 'name', 'total',
-                    'payment_method', 'status', 'is_ordered', 'created_at')
+                    'payment_method', 'status', 'order_placed_to', 'is_ordered', 'created_at')
     inlines = [OrderedFoodInline]
 
 
