@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Django messages block -->
+{% include 'includes/alerts.html' %}
+
+<!-- Main Section Start -->
+<div class="main-section">
+    {% include 'includes/cover.html' %}
+    <div class="page-section account-header buyer-logged-in">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-lg-3 col-md-3 col-sm-12">
+                    {% include 'includes/vendor_sidebar.html' %}
+                </div>
+
+                <!-- Main content -->
+                <div class="col-lg-9 col-md-9 col-sm-12">
+                    <div class="user-dashboard loader-holder">
+                        <div class="user-holder">
+                            <!-- Overview cards -->
+                            <h5 class="text-uppercase">MY ORDERS</h5>
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-header text-center text-dark font-weight-bolder">
+                                            Total Orders
+                                        </div>
+                                        <div class="card-body text-center">
+                                            <a href="#" class="text-decoration-none">
+                                                <h5 class="card-title mb-0">{{ order_count }}</h5>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br>
+
+                            <div class="row mt-1">
+                                <div class="col-12">
+                                    <div class="user-orders-list">
+                                        <div class="responsive-table">
+                                            <div class="table-responsive shadow-sm rounded">
+                                                <table class="table table-striped table-hover table-sm align-middle mb-0 table-tall" id="ordersTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th scope="col" class="fw-semibold">Order #</th>
+                                                            <th scope="col" class="fw-semibold">Customer</th>
+                                                            <th scope="col" class="fw-semibold text-end">Total</th>
+                                                            <th scope="col" class="fw-semibold">Status</th>
+                                                            <th scope="col" class="fw-semibold">Date</th>
+                                                            <th scope="col" class="fw-semibold text-center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for order in orders %}
+                                                            <tr>
+                                                                <td><strong class="text-dark">{{ order.order_number }}</strong></td>
+                                                                <td>
+                                                                    <span>{{ order.user.get_full_name }}</span>
+                                                                    {% if order.user.email %}
+                                                                        <div class="small text-muted">{{ order.user.email }}</div>
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td class="text-end">£{{ order.get_total_by_vendor.total|floatformat:2 }}</td>
+                                                                <td>
+                                                                    {% if order.status == "Pending" %}
+                                                                        <span class="badge bg-warning text-dark badge-strong">Pending</span>
+                                                                    {% elif order.status == "Processing" %}
+                                                                        <span class="badge bg-info text-dark badge-strong">Processing</span>
+                                                                    {% elif order.status == "Completed" %}
+                                                                        <span class="badge bg-success text-white badge-success">Completed</span>
+                                                                    {% elif order.status == "Cancelled" %}
+                                                                        <span class="badge bg-secondary text-white badge-danger">Cancelled</span>
+                                                                    {% else %}
+                                                                        <span class="badge bg-success text-white">{{ order.status }}</span>
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td>
+                                                                    <span class="text-muted">{{ order.created_at|date:"M d, Y H:i" }}</span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <a href="{% url 'vendor_order_detail' order.order_number %}" class="btn btn-danger btn-sm" aria-label="View order {{ order.order_number }}">
+                                                                        <i class="fas fa-eye me-1" aria-hidden="true"></i> Details
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        {% empty %}
+                                                            <tr>
+                                                                <td colspan="6" class="text-center">No orders found.</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div> <!-- /.responsive-table -->
+                                    </div> <!-- /.user-orders-list -->
+                                </div> <!-- /.col-12 -->
+                            </div> <!-- /.row (orders) -->
+
+                        </div> <!-- /.user-holder -->
+                    </div> <!-- /.user-dashboard -->
+                </div> <!-- /.col main -->
+            </div> <!-- /.row -->
+        </div> <!-- /.container -->
+    </div> <!-- /.page-section -->
+</div> <!-- /.main-section -->
+<!-- Main Section End -->
+
+<!-- LOAD pagination -->
+{% include 'includes/pagination.html' %}
+
+{% endblock content %}
+
