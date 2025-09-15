@@ -35,6 +35,14 @@
 	<!-- Paystack Inline (CDN) -->
 	<script src="https://js.paystack.co/v2/inline.js"></script>
 
+
+	<!-- DataTables plugin CDN -->
+	<!-- DataTables CSS -->
+	<!-- DataTables JS -->
+	<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.min.css">
+	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+
+
 	<!-- Script to load in HTML head for google location api -->
 	 {% if '/' == request.path or 'profile' in request.path %}
 		<script src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_API_KEY}}&libraries=places&callback=initAutoComplete" async defer></script>
@@ -67,5 +75,3 @@
 
     <!-- LOAD FOOTER -->
     {% include 'includes/footer.html' %}
-
-
