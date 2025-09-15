@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from accounts.forms import UserInfoForm, UserProfileForm
 from accounts.models import UserProfile
 from orders.models import Order, OrderedFood
-from django.core.paginator import Paginator
 
 
 @login_required(login_url='login')
@@ -50,13 +49,8 @@ def my_orders(request):
     orders = Order.objects.filter(
         user=request.user, is_ordered=True).order_by('-created_at')
 
-    paginator = Paginator(orders, 10)   # 10 orders per page
-    page_number = request.GET.get('page') or 1
-    page_obj = paginator.get_page(page_number)
     context = {
-        'page_obj': page_obj,
-        # keep backward-compatibility if other code expects 'orders' variable:
-        'orders': page_obj.object_list,
+        'orders': orders,
         'order_count': orders.count(),
         'customer_my_orders_active': request.resolver_match.url_name == 'customer_my_orders',
     }
