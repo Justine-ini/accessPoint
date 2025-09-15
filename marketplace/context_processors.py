@@ -57,7 +57,7 @@ def get_cart_amounts(request):
                       for amount in d.values())
 
             total = subtotal + tax
-    print(tax_dict)
+
     return {
         'cart_subtotal': str(subtotal),
         'cart_tax': str(tax),
