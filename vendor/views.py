@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from orders.models import Order, OrderedFood
 from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
 from accounts.forms import UserProfileForm
@@ -12,8 +13,9 @@ from accounts.models import UserProfile
 from .forms import VendorForm, OpeningHourForm
 from .models import Vendor, OpeningHour
 
-
 # Create your views here.
+
+
 def get_vendor(request):
     vendor = Vendor.objects.get(user=request.user)
     return vendor
@@ -215,6 +217,7 @@ def delete_fooditem(request, pk=None):
     return redirect('fooditems_by_category', fooditem.category.id)
 
 
+@login_required(login_url='login')
 def opening_hours(request):
     vendor = get_vendor(request)
     opening_hour = OpeningHour.objects.filter(vendor=vendor)
@@ -238,6 +241,7 @@ def opening_hours(request):
     return render(request, 'vendors/opening_hours.html', context)
 
 
+@login_required(login_url='login')
 def add_opening_hours(request):
 
     if not request.user.is_authenticated:
@@ -311,6 +315,7 @@ def add_opening_hours(request):
         return JsonResponse(response)
 
 
+@login_required(login_url='login')
 def remove_opening_hours(request, pk=None):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -332,3 +337,49 @@ def remove_opening_hours(request, pk=None):
         'id': pk,
         'message': 'Opening hours removed successfully!'
     })
+
+
+@login_required(login_url='login')
+def order_detail(request, order_number):
+
+    vendor = get_vendor(request)
+    try:
+        order = get_object_or_404(
+            Order,
+            order_number=order_number,
+            vendors=vendor,
+            is_ordered=True
+        )
+        ordered_foods = OrderedFood.objects.filter(
+            order=order, fooditem__vendor=vendor)
+
+    except Vendor.DoesNotExist:
+        # Handle case where user is not a vendor
+        return redirect('vendor')
+
+    subtotal = sum(item.amount for item in ordered_foods)
+    rate = int(float(list(order.tax_data['VAT'].keys())[0]))
+    tax = (rate / 100) * subtotal
+    total = tax + subtotal
+
+    context = {
+        'total': total,
+        'tax': tax,
+        "subtotal": subtotal,
+        'order': order,
+        'ordered_foods': ordered_foods,
+    }
+    return render(request, 'vendors/order_detail.html', context)
+
+
+def my_orders(request):
+    orders = Order.objects.filter(
+        is_ordered=True).order_by('-created_at')
+
+    context = {
+        'orders': orders,
+        'order_count': orders.count(),
+        'vendor_my_orders_active': request.resolver_match.url_name == 'vendor_my_orders',
+    }
+
+    return render(request, 'vendors/my_orders.html', context)
