@@ -21,10 +21,9 @@
           ><i class="icon-menu5"></i>Opening Hours</a
         >
       </li>
-      <li>
-        <a href="restaurant-orders.html"
-          ><i class="icon-add_shopping_cart"></i>Orders</a
-        >
+      <li class="{% if vendor_my_orders_active %}active{% endif %}">
+        <a href="{% url 'vendor_my_orders' %}">
+          <i class="icon-add_shopping_cart"></i>Orders</a>
       </li>
       <li>
         <a href="restaurant-earnings.html"
@@ -37,13 +36,8 @@
         >
       </li>
       <li>
-        <a href="restaurant-change-password.html"
-          ><i class="icon-unlock-alt"></i>Change Password</a
-        >
-      </li>
-      <li>
-        <a class="logout-btn" href="registration.html"
-          ><i class="icon-log-out"></i>Signout</a
+        <a class="logout-btn" href="{% url 'logout' %}"
+          ><i class="icon-log-out"></i>Logout</a
         >
       </li>
     </ul>
