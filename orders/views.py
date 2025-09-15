@@ -1,3 +1,4 @@
+from decimal import Decimal
 import secrets
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -8,12 +9,14 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
+from orders.models import FoodItem
 from marketplace.context_processors import get_cart_amounts
-from marketplace.models import Cart
+from marketplace.models import Cart, Tax
 from accounts.utils import send_notification_email
 from orders.utils import generate_order_number
 from .forms import OrderForm
 from .models import Order, Payment, OrderedFood
+import json
 
 
 @login_required(login_url='login')
@@ -27,6 +30,45 @@ def place_order(request):
         messages.warning(request, _(
             'Your cart is empty. Please add items to your cart before proceeding to checkout.'))
         return redirect('marketplace')
+
+    # Uses dict.fromkeys(...) to deduplicate while preserving insertion order.
+    vendors_ids = list(dict.fromkeys(i.fooditem.vendor.id for i in cart_items))
+
+    get_tax = Tax.objects.filter(is_active=True)
+    vendor_subtotals = {}
+
+    for i in cart_items:
+        fooditem = FoodItem.objects.get(
+            pk=i.fooditem.id, vendor_id__in=vendors_ids)
+        vendor_id = i.fooditem.vendor.id
+        item_total = i.fooditem.price * i.quantity
+
+        if vendor_id in vendor_subtotals:
+            vendor_subtotals[vendor_id] += item_total
+        else:
+            vendor_subtotals[vendor_id] = item_total
+
+     # Build per-vendor totals with tax
+    vendor_totals = {}
+    for vendor_id, subtotal in vendor_subtotals.items():
+        tax_dict = {}
+        total_tax = Decimal("0.00")
+
+        for tax in get_tax:
+            tax_amount = (Decimal(tax.tax_percentage) /
+                          Decimal(100)) * Decimal(subtotal)
+            total_tax += tax_amount
+            tax_dict[str(tax.tax_type)] = {
+                str(tax.tax_percentage): str(round(tax_amount, 2))
+            }
+
+        total = Decimal(subtotal) + total_tax
+
+        vendor_totals[vendor_id] = {
+            "subtotal": (str(subtotal)),
+            "tax_data": tax_dict,
+            "total": str(total),
+        }
 
     subtotal = get_cart_amounts(request).get('cart_subtotal', 0)
     tax = get_cart_amounts(request).get('cart_tax', 0)
@@ -49,6 +91,7 @@ def place_order(request):
                 user=user,
                 total_tax=tax,
                 total=total,
+                total_data=json.dumps(vendor_totals),
                 tax_data=tax_data,
                 payment_method=request.POST.get('payment_method', 'COD'),
             )
@@ -56,6 +99,7 @@ def place_order(request):
 
             # ✅ Generate order number after saving (so pk exists)
             order.order_number = generate_order_number(order.pk)
+            order.vendors.add(*vendors_ids)  # save ids to manytomany
             order.save(update_fields=["order_number"])
 
             context = {
@@ -150,7 +194,6 @@ def payments(request):
                 "items": vendor_items,
                 'total_amount': sum(item.fooditem.price * item.quantity for item in vendor_items),
             }
-            print("Vendor Email Context:", context)
 
             send_notification_email(mail_subject, mail_template, context,)
 
