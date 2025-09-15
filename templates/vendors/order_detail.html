@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="main-section">
+  {% include 'includes/cover.html' %}
+  <div class="page-section account-header buyer-logged-in">
+    <div class="container">
+      <div class="row">
+
+        <!-- Main content -->
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <!-- Messages -->
+          {% include 'includes/alerts.html' %}
+
+          <div class="card shadow-sm mb-4">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3 order-header">
+                <div>
+                <h5 class="badge bg-secondary text-white p-2 mt-2 mb-5" style="font-size: larger;">Completed Order</h5>
+            
+                  <h4 class="mb-3">Order <small class="text-muted">#{{ order.order_number }}</small></h4>
+                  <div class="order-meta">
+                    <p class="me-2"><strong>Date:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+                    <p class="me-2"><strong>Placed by:</strong> {{ order.user.get_full_name }}</p>
+                  </div>
+                </div>
+
+                <div class="text-end">               
+                  <div class="mt-3">
+
+                    <button type="button" onclick="window.history.back();" 
+                        class="btn btn-sm btn-secondary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Back to orders
+                    </button>
+
+
+                    <button class="btn btn-sm btn-danger me-2" onclick="window.print()">
+                      <i class="fas fa-print me-1"></i> Print
+                    </button>
+
+                    {% if order.invoice_url %}
+                      <a href="{{ order.invoice_url }}" class="btn btn-sm btn-primary" target="_blank" rel="noopener">
+                        <i class="fas fa-download me-1"></i> Download Invoice
+                      </a>
+                    {% else %}
+                      {% url 'invoice_download' order.id as invoice_url %}
+                      {% if invoice_url %}
+                        <a href="{{ invoice_url }}" class="btn btn-sm btn-primary">
+                          <i class="fas fa-download me-1"></i> Download Invoice
+                        </a>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- Left: Items -->
+                <div class="col-lg-8 col-md-7">
+                  <div class="mb-3">
+                    <div class="table-responsive order-items">
+                      <table class="table table-sm align-middle table-tall">
+                        <thead class="table-light">
+                          <tr>
+                            <th scope="col" class="fw-semibold">Image</th>
+                            <th scope="col" class="fw-semibold">FoodItem</th>
+                            <th scope="col" class="fw-semibold">Price</th>
+                            <th scope="col" class="fw-semibold text-end">Quantity</th>
+                            <th scope="col" class="fw-semibold">Amount</th>
+                            <th scope="col" class="fw-semibold">Date</th>
+                            <th scope="col" class="fw-semibold text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% if ordered_foods %}
+                            {% for food in ordered_foods %}
+                              <tr>
+                                <td><img src="{{ food.fooditem.image.url }}" width="50" alt="Food image"></td>
+                                <td><strong class="text-dark">{{ food.fooditem.food_title }}</strong></td>
+                                <td>£ {{ food.price|floatformat:2 }}</td>
+                                <td class="text-end">{{ food.quantity }}</td>
+                                <td class="text-dark">£ {{ food.amount|floatformat:2 }}</td>
+                                <td class="text-dark">{{ order.created_at|date:"M d, Y H:i" }}</td>
+                                <td class="text-center">
+                                  <a href="#" class="btn btn-success btn-sm">Re-Order</a>
+                                </td>
+                              </tr>
+                            {% endfor %}
+                          {% else %}
+                            <tr>
+                              <td colspan="7" class="text-center text-muted py-4">No items found for this order.</td>
+                            </tr>
+                          {% endif %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {% if order.notes %}
+                    <div class="mb-3">
+                      <h6 class="mb-2">Order notes</h6>
+                      <div class="card border-0 bg-light p-3">
+                        <div class="small text-muted">{{ order.notes }}</div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Right: Summary & Addresses -->
+                <div class="col-lg-4 col-md-5">
+                  <div class="order-summary card mb-3">
+                    <div class="card-body">
+                      <h6 class="mb-3">Order summary</h6>
+
+                      <table class="table table-borderless">
+                        <tbody>
+                          <tr>
+                            <td>Subtotal</td>
+                            <td class="text-end">£{{ subtotal|default:"0.00"|floatformat:2 }}</td>
+                          </tr>
+                          <tr>
+                            <td>Tax</td>
+                            <td class="text-end">£{{ tax|default:"0.00"|floatformat:2 }}</td>
+                          </tr>
+                          
+                          <tr class="fw-bold">
+                            <td>Total</td>
+                            <td class="text-end">£{{ total|floatformat:2 }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                      <div class="mt-3">
+                        <div>
+                            <strong>Payment:</strong>
+                            <img src="{% static 'images/paystack.png' %}" alt="Paystack" width="90">
+                        </div>
+                      </div>
+
+
+                      <div class="mt-3">
+                        <a href="mailto:support@yourdomain.com?subject=Order%20{{ order.order_number }}%20help" class="btn btn-danger btn-sm w-100">
+                          <i class="fas fa-headset me-1"></i> Contact support
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-3">
+                    <div class="card-body">
+                      <h6 class="mb-2">Shipping address</h6>
+                      {% if order %}
+                        <div class="small text-muted">
+                          <b>{{ order.name }}</b><br>
+                          {{ order.address }}<br>
+                          {{ order.city }}<br>
+                          {{ order.state }}<br>
+                          {{ order.country }}<br>
+                          <strong>Phone:</strong> {{ order.phone }}
+                        </div>
+                      {% else %}
+                        <div class="small text-muted">No shipping address on file.</div>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                </div> <!-- /.col summary -->
+              </div> <!-- /.row -->
+            </div> <!-- /.card-body -->
+          </div> <!-- /.card -->
+
+        </div> <!-- /.col main -->
+      </div> <!-- /.row -->
+    </div> <!-- /.container -->
+  </div> <!-- /.page-section -->
+</div> <!-- /.main-section -->
+
+<script>
+  // printing handled by window.print() button
+</script>
+
+{% endblock content %}
