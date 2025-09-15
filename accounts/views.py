@@ -1,5 +1,5 @@
 """Views for user registration and management."""
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.defaultfilters import slugify
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -7,8 +7,10 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
-from orders.models import Order
+from django.utils import timezone
+from orders.models import Order, OrderedFood
 from vendor.forms import VendorForm
+from vendor.models import Vendor
 from .forms import UserForm, LoginForm
 from .models import User, UserProfile
 from .utils import get_user_role, vendor_restrict, customer_restrict, send_verification_email
@@ -192,7 +194,35 @@ def customer_dashboard(request):
 @login_required(login_url='login')
 @user_passes_test(vendor_restrict)
 def vendor_dashboard(request):
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(
+        vendors__in=[vendor.id], is_ordered=True).order_by('-created_at')
+
+    total_revenue = 0
+    for order in orders:
+        try:
+            total_revenue += float(order.get_total_by_vendor()["total"])
+        except (TypeError, KeyError, ValueError):
+            continue
+
+    # Get the start of the current month in UTC
+    now = timezone.now()
+    start_of_month = now.replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0)
+    this_month_revenue = 0.0
+    for order in orders:
+        if order.created_at >= start_of_month:
+            try:
+                this_month_revenue += float(
+                    order.get_total_by_vendor()["total"])
+            except (TypeError, KeyError, ValueError):
+                continue  # Skip invalid or missing totals
+
     context = {
+        'orders': orders,
+        'orders_count': orders.count(),
+        "total_revenue": total_revenue,
+        "this_month_revenue": this_month_revenue,
         'dashboard_active': request.path == '/vendor-dashboard/' or request.path == '/vendor/'
     }
     return render(request, 'accounts/vendor_dashboard.html', context)
