@@ -1,0 +1,13 @@
+<!-- DataTables Initialization with jQuery -->
+<script>
+    $(document).ready(function() {
+        $('#ordersTable').dataTable({
+            "order": [[4, "desc"]], // Sort by the 5th column (Date, created_at) descending
+            "paging": true,         // Enable pagination
+            "searching": true,      // Enable search
+            "pageLength": 10,        // Show 10 entries per page
+            "lengthMenu": [10, 15, 20, 30], // Options for rows per page
+            "sPaginationType": "full_numbers" // Full pagination controls
+        });
+    });
+</script>
