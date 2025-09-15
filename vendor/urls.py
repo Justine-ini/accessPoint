@@ -1,4 +1,3 @@
-from django.utils.text import slugify
 from django.urls import path
 from accounts import views as AccountViews
 from .import views
@@ -31,5 +30,7 @@ urlpatterns = [
     path('opening-hours/add/', views.add_opening_hours, name='add_opening_hours'),
     path('opening-hours/remove/<int:pk>/', views.remove_opening_hours,
          name='remove_opening_hours'),
-
+    path('my-order/', views.my_orders, name='vendor_my_orders'),
+    path('order-detail/<str:order_number>/',
+         views.order_detail, name='vendor_order_detail'),
 ]
