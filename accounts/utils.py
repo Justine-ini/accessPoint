@@ -63,6 +63,7 @@ def send_verification_email(request, user, mail_subject, email_template):
         subject=mail_subject, body=message, from_email=from_email, to=[
             to_email]
     )
+    mail.content_subtype = 'html'
     mail.send()
 
 
@@ -74,4 +75,5 @@ def send_notification_email(mail_subject, mail_template, context):
     mail = EmailMessage(
         mail_subject, message, from_email, to=[to_email]
     )
+    mail.content_subtype = 'html'
     mail.send()
