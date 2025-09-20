@@ -1,20 +1,147 @@
-{% autoescape off %}
-Subject: New Order Received - Order #{{ order.order_number }}
+<!-- {% autoescape off %} -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Order Confirmation">
+  <link rel="stylesheet" type="text/css" hs-webfonts="true" href="https://fonts.googleapis.com/css?family=Lato:400,700,900">
 
-Order Number: {{ order.order_number }}
-Transaction ID: {{ order.payment.transaction_id }}
+  <style type="text/css">
+    body {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Lato', sans-serif;
+      font-size: 16px;
+      color: #33475B;
+      background-color: #F5F8FA;
+      -webkit-font-smoothing: antialiased;
+    }
+    #email {
+      margin: auto;
+      width: 600px;
+      background-color: #ffffff;
+    }
+    h1, h2 {
+      color: #33475B;
+      margin: 0 0 20px 0;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 0 0 20px 0;
+    }
+    .btn {
+      display: inline-block;
+      font: inherit;
+      background-color: #C33332;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 900;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    th, td {
+      font-size: 14px;
+      padding: 10px;
+    }
+    th {
+      background-color: #C33332;
+      color: #fff;
+    }
+  </style>
+</head>
 
-Here are the items ordered from you:
-{% for item in items %}
-- {{ item.fooditem.food_title }} (x{{ item.quantity }}) - £{{ item.fooditem.price }} each
-{% endfor %}
-Total for your items: £{{ total_amount }}
+<body>
+  <div id="email">
+    <!-- Logo -->
+    <table role="presentation" width="100%">
+      <tr>
+        <td align="center" style="padding: 20px;">
+          <img alt="FoodOnline Logo" src="https://rathank.com/foodonline/logo/logo.png" width="200">
+        </td>
+      </tr>
+    </table>
 
+    <!-- Order Confirmation -->
+    <table bgcolor="#EAF0F6" width="100%" role="presentation" cellpadding="0" cellspacing="0" style="padding: 30px;">
+      <tr>
+        <td>
+          <h1>Order Confirmation</h1>
+          <p>Hi {{ user.first_name }},</p>
+          <p>You have received a new order!</p>
+          <p>Order Date: <strong>{{ order.created_at }}</strong></p>
+          <p>Your order number is <strong>{{ order.order_number }}</strong>.</p>
+          <p>Transaction ID: <strong>{{ order.payment.transaction_id }}</strong></p>
+        </td>
+      </tr>
+    <!-- </table> -->
+    <!-- <table> -->
+      <tr>
+        <td>
+          <h2>Ordered Items</h2>
+          <table width="100%" role="presentation" border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th align="center">Image</th>
+                <th align="center">Food Item</th>
+                <th align="center">Quantity</th>
+                <th align="center">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in ordered_food_to_vendor %}
+              <tr>
+                <td align="center"><img src="http://{{ domain }}{{ item.fooditem.image.url }}" alt="{{ item.fooditem.name }}" width="80"></td>
+  
+                <td align="center">
+                    {{ item.fooditem.food_title }}<br>
+                    <small style="display:block; font-size: 10px;">
+                        <a href="http://{{ domain }}{% url 'vendor_detail' item.fooditem.vendor.slug %}" 
+                        style="color:rgb(63, 63, 212); text-decoration:none;">
+                        {{ item.fooditem.vendor.vendor_name }}
+                        </a>
+                    </small>
+                </td>
 
-Please prepare the items for delivery.
+                <td align="center">{{ item.quantity }}</td>
+                <td align="center">${{ item.price }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
 
-If you believe you received this email in error, you can safely ignore it.
+          <table width="100%" role="presentation" cellpadding="0" cellspacing="0" style="padding: 0 30px 30px 30px;">
+            <tr>
+              <td align="right">
+                <p>Subtotal: ${{ vendor_subtotal|default_if_none:0.00|floatformat:2 }}</p>
+                <p>Tax: ${{ vendor_tax|default_if_none:0.00|floatformat:2 }}</p>
+                <h3>Total: ${{ vendor_total|default_if_none:0.00|floatformat:2 }}</h3>
+              </td>
+            </tr>
+          </table>
 
-{% endautoescape %}
-Best regards,
-The AccessPoint Team
+          <p style="margin-top: 30px;">Best regards,<br><strong>FoodOnline Marketplace Team</strong></p>
+        </td>
+      </tr>
+        <!-- Footer -->
+      <tr role="presentation" bgcolor="#C33332" width="100%">
+        <td align="center" style="padding: 15px; color: #fff; font-size: 14px;">
+          <p>© {% now "Y" %} FoodOnline Marketplace, All Rights Reserved.</p>
+          <a href="http://{{ domain }}" style="color: #fff; text-decoration: underline;">Visit Website</a>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
+<!-- {% endautoescape %} -->
