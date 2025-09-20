@@ -60,7 +60,7 @@ def menu_builder(request):
     categories = Category.objects.filter(vendor=vendor).order_by('created_at')
     context = {
         'categories': categories,
-        'menu_builder_active': request.path.startswith('/vendor/menu-builder/'),
+        'menu_builder_active': request.resolver_match.url_name == 'menu_builder',
     }
     return render(request, 'vendors/menu_builder.html', context)
 
@@ -74,6 +74,7 @@ def fooditems_by_category(request, pk=None):
     context = {
         'category': category,
         'fooditems': fooditems,
+        'menu_builder_active': request.resolver_match.url_name == 'fooditems_by_category'
     }
     return render(request, 'vendors/fooditems_by_category.html', context)
 
@@ -99,6 +100,8 @@ def add_category(request):
 
     context = {
         'form': form,
+        'menu_builder_active': request.resolver_match.url_name == 'add_category'
+
     }
     return render(request, 'vendors/add_category.html', context)
 
@@ -126,6 +129,7 @@ def edit_category(request, pk):
     context = {
         'form': form,
         'category': category,
+        'menu_builder_active': request.resolver_match.url_name == 'edit_category'
     }
     return render(request, 'vendors/edit_category.html', context)
 
@@ -167,6 +171,7 @@ def add_fooditem(request):
 
     context = {
         'form': form,
+        'menu_builder_active': request.resolver_match.url_name == 'add_fooditem'
     }
 
     return render(request, 'vendors/add_fooditem.html', context)
@@ -201,6 +206,7 @@ def edit_fooditem(request, pk=None):
     context = {
         'form': form,
         'fooditem': fooditem,
+        'menu_builder_active': request.resolver_match.url_name == 'edit_fooditem'
     }
     return render(request, 'vendors/edit_fooditem.html', context)
 
