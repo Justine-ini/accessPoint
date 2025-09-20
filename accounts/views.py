@@ -1,5 +1,5 @@
 """Views for user registration and management."""
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.template.defaultfilters import slugify
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.utils import timezone
-from orders.models import Order, OrderedFood
+from orders.models import Order
 from vendor.forms import VendorForm
 from vendor.models import Vendor
 from .forms import UserForm, LoginForm
@@ -49,6 +49,10 @@ def register_user(request):
             return redirect('registerUser')
     else:
         form = UserForm()
+    if form.errors:
+        for field in form:
+            for error in field.errors:
+                messages.error(request, error)
     context = {
         'form': form,
     }
@@ -103,6 +107,14 @@ def register_vendor(request):
     else:
         form = UserForm()
         v_form = VendorForm()
+    if form.errors or v_form.errors:
+        for field in form:
+            for error in field.errors:
+                messages.error(request, error)
+        for field in v_form:
+            for error in field.errors:
+                messages.error(request, error)
+
     context = {
         'form': form,
         'v_form': v_form,
@@ -149,6 +161,10 @@ def login_user(request):
             messages.error(request, 'Please correct the errors below.')
     else:
         form = LoginForm()
+    if form.errors:
+        for field in form:
+            for error in field.errors:
+                messages.error(request, error)
     context = {
         'form': form
     }
