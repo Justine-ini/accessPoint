@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Loads .env file automatically
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,10 +27,10 @@ STATIC_DIR = "accessPoint_main/static"
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', cast=bool)
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -40,8 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
+    'menu',
+    'orders',
     'vendor',
+    'accounts',
+    'customers',
+    'marketplace',
+    'django.contrib.gis',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Custom middleware to access request, in orders model
+    'orders.request_object.RequestObjectMiddleware',
 ]
 
 ROOT_URLCONF = 'accessPoint_main.urls'
@@ -66,6 +77,12 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.get_vendor',
+                'accounts.context_processors.get_user_profile',
+                'accounts.context_processors.paystack_public_key',
+                'accounts.context_processors.get_google_api',
+                'marketplace.context_processors.get_cart_counter',
+                'marketplace.context_processors.get_cart_amounts',
             ],
         },
     },
@@ -80,12 +97,12 @@ WSGI_APPLICATION = 'accessPoint_main.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', 'localhost'),
-        'PORT': config('DB_PORT', '5432'),
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -146,14 +163,58 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Email configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
-# SMTP server details
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT', cast=int)
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
 
-# Authentication
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+
+# PAYSTACK API KEYS
+
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
+
+
+# 1. Fix path separators and structure
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# 2. Correct GDAL paths (using pathlib for reliability)
+gdal_dir = BASE_DIR / 'env' / 'Lib' / 'site-packages' / 'osgeo'
+proj_dir = BASE_DIR / 'env' / 'Lib' / 'site-packages' / 'osgeo' / 'data' / 'proj'
+
+# 3. Update PATH (verify the DLL name matches your actual file)
+os.environ['PATH'] = str(gdal_dir) + ';' + os.environ['PATH']
+
+# 4. Set PROJ_LIB (remove the PATH concatenation)
+os.environ['PROJ_LIB'] = str(proj_dir)
+
+# 5. Correct DLL name (common patterns shown - use the exact name you find)
+dll_names = [
+    'gdal310.dll',       # Most common for 3.10.x
+    'gdal1310.dll',      # Some installations use this
+    'gdal.dll'           # Sometimes just this
+]
+
+for dll_name in dll_names:
+    dll_path = gdal_dir / dll_name
+    if dll_path.exists():
+        GDAL_LIBRARY_PATH = str(dll_path)
+        break
+else:
+    raise RuntimeError(
+        f"GDAL DLL not found in {gdal_dir}. Tried: {', '.join(dll_names)}")
+
+# 6. Verify paths exist
+if not Path(GDAL_LIBRARY_PATH).exists():
+    raise FileNotFoundError(
+        f"GDAL DLL not found at {GDAL_LIBRARY_PATH}\n"
+        f"Please check:\n"
+        f"1. The file exists in {gdal_dir}\n"
+        f"2. The filename matches exactly\n"
+        f"3. You have proper read permissions"
+    )
