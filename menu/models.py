@@ -1,13 +1,10 @@
 from django.db import models
 from vendor.models import Vendor
-from django.utils.text import slugify
-
-# Create your models here.
 
 
 class Category(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    category_name = models.CharField(max_length=50, unique=True)
+    category_name = models.CharField(max_length=50, unique=False)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(max_length=250, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -16,6 +13,9 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'category'
         verbose_name_plural = 'categories'
+
+    def clean(self):
+        self.category_name = self.category_name.capitalize()
 
     def __str__(self):
         return str(self.category_name)
@@ -42,7 +42,4 @@ class FoodItem(models.Model):
     def save(self, *args, **kwargs):
         # Capitalize the name before saving
         self.food_title = self.food_title.capitalize()
-        # Optionally auto-generate slug only if blank
-        if not self.slug:
-            self.slug = slugify(self.food_title)
-        super().save(*args, **kwargs)
+        super(FoodItem, self).save(*args, **kwargs)
