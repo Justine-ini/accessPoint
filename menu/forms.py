@@ -16,11 +16,14 @@ class CategoryForm(forms.ModelForm):
 
 
 class FoodItemForm(forms.ModelForm):
+
     category = forms.ModelChoiceField(
+        # get all categories in database
         queryset=Category.objects.all(),
-        empty_label="Select a category",           # ← this becomes the first choice
+        empty_label="Select a category",    # ← this becomes the first choice
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+
     image = forms.FileField(
         widget=forms.FileInput(attrs={'class': 'btn btn-info w-100'}), validators=[allow_only_images_validator]
     )
