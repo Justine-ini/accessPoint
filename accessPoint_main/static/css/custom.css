@@ -1,28 +1,53 @@
-.btn{
+.btn {
     padding: 4px 1.2em;
     font-size: 12px;
-    cursor:pointer
+    cursor: pointer
 }
 
 /* Used in vendor profile form */
-.google-logo span:nth-child(1) { color: #4285F4; } /* G - Blue */
-.google-logo span:nth-child(2) { color: #DB4437; } /* o - Red */
-.google-logo span:nth-child(3) { color: #F4B400; } /* o - Yellow */
-.google-logo span:nth-child(4) { color: #4285F4; } /* g - Blue */
-.google-logo span:nth-child(5) { color: #0F9D58; } /* l - Green */
-.google-logo span:nth-child(6) { color: #DB4437; } /* e - Red */
-
-
-table > tbody > tr > td {
-    border:none !important;
+.google-logo span:nth-child(1) {
+    color: #4285F4;
 }
+
+/* G - Blue */
+.google-logo span:nth-child(2) {
+    color: #DB4437;
+}
+
+/* o - Red */
+.google-logo span:nth-child(3) {
+    color: #F4B400;
+}
+
+/* o - Yellow */
+.google-logo span:nth-child(4) {
+    color: #4285F4;
+}
+
+/* g - Blue */
+.google-logo span:nth-child(5) {
+    color: #0F9D58;
+}
+
+/* l - Green */
+.google-logo span:nth-child(6) {
+    color: #DB4437;
+}
+
+/* e - Red */
+
+
+table>tbody>tr>td {
+    border: none !important;
+}
+
 /* Opening hours */
-.add_hour{
+.add_hour {
     padding: 6px 1em;
     font-size: 14px;
 }
 
-#opening_hours select option{
+#opening_hours select option {
     color: #333;
 }
 
@@ -51,11 +76,11 @@ table > tbody > tr > td {
     font-weight: bold;
     transition: background-color 0.3s;
 }
-        
+
 .paystack-button:hover {
     background-color: #008A4B;
 }
-        
+
 .paystack-button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
@@ -71,31 +96,120 @@ table > tbody > tr > td {
 /* make the "Recent Orders" table taller and more readable */
 .table-tall th,
 .table-tall td {
-  /* increase line height for multi-line content */
-  line-height: 1.6;            /* 1.4–1.8 is usually a good range */
-  /* increase vertical padding to enlarge row height */
-  padding-top: 0.9rem;
-  padding-bottom: 0.9rem;
-  vertical-align: middle;     /* keep content vertically centred */
+    /* increase line height for multi-line content */
+    line-height: 1.6;
+    /* 1.4–1.8 is usually a good range */
+    /* increase vertical padding to enlarge row height */
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+    vertical-align: middle;
+    /* keep content vertically centred */
 }
 
 /* tweak smaller screens so rows don't become huge on mobile */
 @media (max-width: 575.98px) {
-  .table-tall th,
-  .table-tall td {
-    line-height: 1.3;
-    padding-top: 0.55rem;
-    padding-bottom: 0.55rem;
-  }
+
+    .table-tall th,
+    .table-tall td {
+        line-height: 1.3;
+        padding-top: 0.55rem;
+        padding-bottom: 0.55rem;
+    }
 }
 
 
 /* Customer Order Details */
 
 /* Scoped styles for order detail */
-.order-header .order-meta { font-size: .95rem; color: #6c757d; }
-.order-items img.product-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; }
-.order-summary .table td, .order-summary .table th { border-top: 0; }
+.order-header .order-meta {
+    font-size: .95rem;
+    color: #6c757d;
+}
+
+.order-items img.product-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.order-summary .table td,
+.order-summary .table th {
+    border-top: 0;
+}
+
 @media (max-width: 576px) {
-  .order-items img.product-thumb { width: 48px; height: 48px; }
+    .order-items img.product-thumb {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    a.get-start-btn {
+        display: block;
+        margin-top: 12px !important;
+        margin-left: 0 !important;
+    }
+
+    .main-search-section {
+        padding-top: 20px !important;
+        padding-bottom: 0px !important;
+        background-position: left !important;
+
+    }
+
+    /* Logo images: scale nicely, preserve aspect ratio, cap height */
+    .company-logo ul li img {
+        display: block;
+        max-width: 100%;
+        object-fit: cover;
+        margin: 0 auto;
+    }
+
+    /* Login page */
+    .user-dashboard {
+        width: 100% !important;
+    }
+
+    .card-info {
+        margin-bottom: 20px !important;
+    }
+
+    /* Marketplace Homepage */
+    .company-info-detail {
+        margin-top: 0px !important;
+    }
+
+    .restaurant-detail-image-section {
+        padding-top: 40px;
+        padding-bottom: 180px;
+        margin-top: 0px;
+        margin-bottom: 20px;
+    }
+
+    /* Vendor dashboard */
+    .main-header {
+        padding-bottom: 0px;
+    }
+
+    /* Marketplace/id */
+    .image-holder+.text-holder+.price-holder {
+        margin-top: 0;
+        top: 75px;
+    }
+
+    .text-holder {
+        padding-top: 20px;
+    }
+
+    .table.opening_hours {
+        width: 100% !important;
+    }
+
+    .table td {
+        padding: 0.5rem !important;
+    }
+
+
 }
