@@ -6,6 +6,8 @@
 *.pot
 *.pyc
 .history/
+*.whl
+Thumbs.db
 # static/
 __pycache__/
 local_settings.py
