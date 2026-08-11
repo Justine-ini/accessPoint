@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()  # Loads .env file automatically
@@ -27,12 +28,20 @@ STATIC_DIR = "accessPoint_main/static"
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG')
+# os.getenv returns a string, and the string "False" is truthy.
+# Compare it explicitly so DEBUG is a real boolean.
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = []
+
+# Render injects this variable with your live hostname.
+RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
 
 
 # Application definition
@@ -55,7 +64,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",   # <-- add this line
+    "django.contrib.sessions.middleware.SessionMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -96,14 +106,12 @@ WSGI_APPLICATION = 'accessPoint_main.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL", ""),
+        conn_max_age=600,
+        ssl_require=True,
+        engine="django.contrib.gis.db.backends.postgis",
+    )
 }
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -141,6 +149,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 STATIC_URL = '/static/'
 
@@ -179,42 +195,28 @@ GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
 
+# GDAL / GEOS libraries.
+# On Windows we point Django at the DLLs inside the local virtualenv.
+# On Linux (Render) the libraries are installed system-wide by the
+# Dockerfile, and Django finds them on its own.
+if os.name == "nt":
+    gdal_dir = BASE_DIR / "env" / "Lib" / "site-packages" / "osgeo"
+    proj_dir = gdal_dir / "data" / "proj"
 
-# 1. Fix path separators and structure
-BASE_DIR = Path(__file__).resolve().parent.parent
+    os.environ["PATH"] = str(gdal_dir) + ";" + os.environ["PATH"]
+    os.environ["PROJ_LIB"] = str(proj_dir)
 
-# 2. Correct GDAL paths (using pathlib for reliability)
-gdal_dir = BASE_DIR / 'env' / 'Lib' / 'site-packages' / 'osgeo'
-proj_dir = BASE_DIR / 'env' / 'Lib' / 'site-packages' / 'osgeo' / 'data' / 'proj'
+    for dll_name in ("gdal310.dll", "gdal1310.dll", "gdal.dll"):
+        dll_path = gdal_dir / dll_name
+        if dll_path.exists():
+            GDAL_LIBRARY_PATH = str(dll_path)
+            break
 
-# 3. Update PATH (verify the DLL name matches your actual file)
-os.environ['PATH'] = str(gdal_dir) + ';' + os.environ['PATH']
-
-# 4. Set PROJ_LIB (remove the PATH concatenation)
-os.environ['PROJ_LIB'] = str(proj_dir)
-
-# 5. Correct DLL name (common patterns shown - use the exact name you find)
-dll_names = [
-    'gdal310.dll',       # Most common for 3.10.x
-    'gdal1310.dll',      # Some installations use this
-    'gdal.dll'           # Sometimes just this
-]
-
-for dll_name in dll_names:
-    dll_path = gdal_dir / dll_name
-    if dll_path.exists():
-        GDAL_LIBRARY_PATH = str(dll_path)
-        break
-else:
-    raise RuntimeError(
-        f"GDAL DLL not found in {gdal_dir}. Tried: {', '.join(dll_names)}")
-
-# 6. Verify paths exist
-if not Path(GDAL_LIBRARY_PATH).exists():
-    raise FileNotFoundError(
-        f"GDAL DLL not found at {GDAL_LIBRARY_PATH}\n"
-        f"Please check:\n"
-        f"1. The file exists in {gdal_dir}\n"
-        f"2. The filename matches exactly\n"
-        f"3. You have proper read permissions"
-    )
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
