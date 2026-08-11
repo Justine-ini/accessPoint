@@ -1,7 +1,7 @@
 from decimal import Decimal
 from django.db import DatabaseError
+from django.db.models import Sum
 from .models import Cart, Tax
-from marketplace.models import FoodItem
 
 
 def get_cart_counter(request):
@@ -19,11 +19,9 @@ def get_cart_counter(request):
     cart_count = 0
     if request.user.is_authenticated:
         try:
-            cart_items = Cart.objects.filter(user=request.user)
-            if cart_items.exists():
-                cart_count = sum(item.quantity for item in cart_items)
-            else:
-                cart_count = 0
+            cart_count = Cart.objects.filter(user=request.user).aggregate(
+                total=Sum('quantity')
+            )['total'] or 0
         except DatabaseError:
             cart_count = 0
     return {'cart_count': cart_count}
@@ -36,11 +34,13 @@ def get_cart_amounts(request):
     tax_dict = {}
 
     if request.user.is_authenticated:
-        cart_items = Cart.objects.filter(user=request.user)
-        if cart_items.exists():
+        try:
+            cart_items = Cart.objects.filter(
+                user=request.user
+            ).select_related('fooditem')
+
             for item in cart_items:
-                fooditem = FoodItem.objects.get(pk=item.fooditem.id)
-                subtotal += Decimal(fooditem.price) * Decimal(item.quantity)
+                subtotal += Decimal(item.fooditem.price) * Decimal(item.quantity)
 
             get_tax = Tax.objects.filter(is_active=True)
 
@@ -57,6 +57,8 @@ def get_cart_amounts(request):
                       for amount in d.values())
 
             total = subtotal + tax
+        except DatabaseError:
+            pass
 
     return {
         'cart_subtotal': str(subtotal),

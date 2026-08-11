@@ -145,6 +145,65 @@ table>tbody>tr>td {
     }
 }
 
+/* Customer dashboard/profile banner */
+.customer-banner-info .customer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.customer-banner-info .customer-contact-row {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    margin: 0 !important;
+}
+
+.customer-banner-info .customer-contact-row i {
+    flex: 0 0 18px;
+    line-height: 1;
+}
+
+.customer-banner-info .customer-contact-row p {
+    margin: 0 !important;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.customer-banner-info .customer-contact-row a {
+    color: inherit;
+}
+
+@media (max-width: 767.98px) {
+    .customer-banner-info {
+        text-align: center;
+        padding-top: 12px !important;
+    }
+
+    .customer-banner-info .customer-contact-list {
+        align-items: center;
+    }
+
+    .customer-banner-info .customer-contact-row {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .account-header .user-dashboard {
+        width: 100% !important;
+    }
+
+    .account-header .user-holder {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .account-header .card {
+        margin-bottom: 12px;
+    }
+}
+
 @media only screen and (max-width: 480px) {
     a.get-start-btn {
         display: block;

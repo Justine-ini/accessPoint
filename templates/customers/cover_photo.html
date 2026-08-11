@@ -24,15 +24,19 @@
                             </figure>
                         </div>
 
-                        <div class="text-holder">
-                            <span class="restaurant-title">{{user.first_name}} {{user.last_name}}</span>
-                            <div class="text">
-                                <i class="icon-phone"></i>
-                                <p>{{user.phone_number}}</p>
-                            </div>
-                            <div class="text">
-                                <i class="icon-mail"></i>
-                                <p>{{user.email}}</p>
+                        <div class="text-holder customer-banner-info">
+                            <span class="restaurant-title">{{ user.first_name }} {{ user.last_name }}</span>
+                            <div class="customer-contact-list">
+                                <div class="text customer-contact-row">
+                                    <i class="icon-mail"></i>
+                                    <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+                                </div>
+                                {% if user.phone_number %}
+                                    <div class="text customer-contact-row">
+                                        <i class="icon-phone"></i>
+                                        <p><a href="tel:{{ user.phone_number }}">{{ user.phone_number }}</a></p>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

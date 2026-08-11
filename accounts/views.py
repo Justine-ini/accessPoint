@@ -197,12 +197,14 @@ def my_account(request):
 @login_required(login_url='login')
 @user_passes_test(customer_restrict)
 def customer_dashboard(request):
-    orders = Order.objects.filter(
-        user=request.user, is_ordered=True).order_by('-created_at')
+    customer_orders = Order.objects.filter(user=request.user, is_ordered=True)
+    order_count = customer_orders.count()
+    orders = customer_orders.select_related('user').order_by('-created_at')[:5]
     context = {
         'customer_dashboard_active': request.resolver_match.url_name == 'customer-dashboard' or request.path == '/customer/',
         'orders': orders,
-        'order_count': orders.count(),
+        'order_count': order_count,
+        'has_more_orders': order_count > 5,
     }
     return render(request, 'accounts/customer_dashboard.html', context)
 
